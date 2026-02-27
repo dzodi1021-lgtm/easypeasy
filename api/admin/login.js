@@ -14,7 +14,6 @@ export default async function handler(req, res) {
 
   const adminUser = process.env.ADMIN_USERNAME || "admin";
   const adminPass = process.env.ADMIN_PASSWORD || "change_me";
-
   if (username !== adminUser || password !== adminPass) {
     return json(res, 401, { ok: false, message: "Invalid credentials" });
   }
@@ -22,8 +21,6 @@ export default async function handler(req, res) {
   const sb = supabaseAdmin();
   const sessionToken = randomToken(24);
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS).toISOString();
-
-  // signature liée aux credentials : si tu changes ADMIN_USERNAME/PASSWORD, ça invalide tout
   const cred_sig = credentialsSignature();
 
   await sb.from("admin_sessions").insert([{
@@ -32,11 +29,13 @@ export default async function handler(req, res) {
     cred_sig
   }]);
 
-  setCookie(res, "admin_session", sessionToken, {
+  // __Host- : cookie "host-only", Secure obligatoire, Path=/ obligatoire, pas de Domain
+  setCookie(res, "__Host-admin_session", sessionToken, {
     httpOnly: true,
     sameSite: "Lax",
     secure: true,
-    maxAge: SESSION_TTL_MS
+    maxAge: SESSION_TTL_MS,
+    path: "/"
   });
 
   return json(res, 200, { ok: true });
