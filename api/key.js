@@ -3,7 +3,7 @@ import { html, redirect, parseCookies, setCookie } from "../lib/http.js";
 import { signState, verifyState } from "../lib/state.js";
 import crypto from "crypto";
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.BASE_URL || "http://sharkx.lol";
 
 function renderBypassError() {
   return `<!doctype html>
@@ -182,4 +182,5 @@ export default async function handler(req, res) {
   }
 
   return html(res, 400, "Invalid step");
+
 }
