@@ -2,8 +2,7 @@ import { supabaseAdmin } from "../lib/supabase.js";
 import { html, redirect, parseCookies, setCookie } from "../lib/http.js";
 import { signState, verifyState } from "../lib/state.js";
 import crypto from "crypto";
-
-const BASE_URL = process.env.BASE_URL || "http://sharkx.lol";
+import { verifyWorkinkToken } from "../lib/workink.js";
 
 function renderBypassError() {
   return `<!doctype html>
@@ -27,11 +26,9 @@ function renderStepPage(opts) {
   const showButton = !!buttonText;
   const showKey = !!opts.showKey;
   const keyValue = opts.keyValue || "";
-
   let pct = 0, label = "Step 0 / 2";
   if (step === 1) { pct = 50; label = "Step 1 / 2"; }
   else if (step === 2) { pct = 100; label = "Step 2 / 2"; }
-
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"/><title>Key system</title></head>
 <body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#020617,#0f172a);color:#e5e7eb;font-family:system-ui,sans-serif;">
@@ -57,8 +54,7 @@ export default async function handler(req, res) {
   const sb = supabaseAdmin();
   const url = new URL(req.url, `https://${req.headers.host}`);
   const stepParam = url.searchParams.get("step") || "0";
-  const token = (url.searchParams.get("t") || "").trim();
-
+  const wk = (url.searchParams.get("wk") || "").trim(); // 
   let step = parseInt(stepParam, 10);
   if (isNaN(step) || step < 0) step = 0;
   if (step > 2) step = 2;
@@ -67,12 +63,16 @@ export default async function handler(req, res) {
   const stateCookie = cookies.keyflow;
   const state = stateCookie ? verifyState(stateCookie) : null;
 
+  // stage:
+  // -1 = none
+  // 0 = started
+  // 1 = step1 completed
   let stage = -1;
   if (state && typeof state.stage === "number" && state.stage >= -1 && state.stage <= 1) {
     stage = state.stage;
   }
 
-  // Step 0
+  // STEP 0
   if (step === 0) {
     setCookie(res, "keyflow", signState({ stage: 0 }), {
       httpOnly: true,
@@ -91,25 +91,13 @@ export default async function handler(req, res) {
     }));
   }
 
-  // Step 1
+  // STEP 1
   if (step === 1) {
-    if (token) {
-      // consume token step1 from DB
-      const now = new Date().toISOString();
-      const { data, error } = await sb
-        .from("keyflow_tokens")
-        .select("*")
-        .eq("token", token)
-        .eq("step", 1)
-        .is("consumed_at", null)
-        .limit(1);
-
-      if (error || !data || data.length === 0) return html(res, 200, renderBypassError());
-
-      const row = data[0];
-      if (new Date(row.expires_at) < new Date()) return html(res, 200, renderBypassError());
-
-      await sb.from("keyflow_tokens").update({ consumed_at: now }).eq("id", row.id);
+    // Pour valider Step1, il faut wk (token Work.ink) => impossible de bypass sans complétion
+    if (wk) {
+      const expectedLinkId = process.env.WORKINK_STEP1_LINK_ID || "";
+      const v = await verifyWorkinkToken({ token: wk, expectedLinkId, req, deleteToken: true });
+      if (!v.ok) return html(res, 200, renderBypassError());
 
       setCookie(res, "keyflow", signState({ stage: 1 }), {
         httpOnly: true,
@@ -118,6 +106,7 @@ export default async function handler(req, res) {
         maxAge: 3600000
       });
 
+      // Nettoie l’URL
       return redirect(res, 302, "/key?step=1");
     }
 
@@ -133,35 +122,22 @@ export default async function handler(req, res) {
     }));
   }
 
-  // Step 2 (clé seulement si token valide)
+  // STEP 2
   if (step === 2) {
-    if (!token) return html(res, 200, renderBypassError());
+    // double sécurité: faut avoir fait step1 sur CE navigateur + wk step2 valide
+    if (stage !== 1) return html(res, 200, renderBypassError());
+    if (!wk) return html(res, 200, renderBypassError());
 
-    const nowIso = new Date().toISOString();
-
-    const { data, error } = await sb
-      .from("keyflow_tokens")
-      .select("*")
-      .eq("token", token)
-      .eq("step", 2)
-      .is("consumed_at", null)
-      .limit(1);
-
-    if (error || !data || data.length === 0) return html(res, 200, renderBypassError());
-
-    const row = data[0];
-    if (new Date(row.expires_at) < new Date()) return html(res, 200, renderBypassError());
-
-    await sb.from("keyflow_tokens").update({ consumed_at: nowIso }).eq("id", row.id);
+    const expectedLinkId = process.env.WORKINK_STEP2_LINK_ID || "";
+    const v = await verifyWorkinkToken({ token: wk, expectedLinkId, req, deleteToken: true });
+    if (!v.ok) return html(res, 200, renderBypassError());
 
     // generate key
     const duration_type = "1d";
-    const keyValue = crypto.randomBytes(12).toString("hex"); // 24 chars hex
-
+    const keyValue = crypto.randomBytes(12).toString("hex");
     const { error: ierr } = await sb
       .from("keys")
       .insert([{ key_value: keyValue, duration_type }]);
-
     if (ierr) return html(res, 500, renderBypassError());
 
     // reset stage
@@ -182,5 +158,4 @@ export default async function handler(req, res) {
   }
 
   return html(res, 400, "Invalid step");
-
 }
