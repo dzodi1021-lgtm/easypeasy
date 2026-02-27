@@ -1,8 +1,8 @@
 import { supabaseAdmin } from "../lib/supabase.js";
-import { html, redirect, parseCookies, setCookie } from "../lib/http.js";
+import { html, redirect, parseCookies, setCookie, randomToken } from "../lib/http.js";
 import { signState, verifyState } from "../lib/state.js";
 import crypto from "crypto";
-import { verifyWorkinkToken } from "../lib/workink.js";
+import { verifyWorkinkToken, getClientIp, getUserAgent, sha256Hex } from "../lib/workink.js";
 
 function renderBypassError() {
   return `<!doctype html>
@@ -50,11 +50,24 @@ function renderStepPage(opts) {
 </body></html>`;
 }
 
+/**
+ * Strict binder: nonce httpOnly + IP hash + UA hash.
+ */
+function getStrictFingerprint(req) {
+  const ip = getClientIp(req);
+  const ua = getUserAgent(req);
+  return {
+    ipHash: sha256Hex(ip),
+    uaHash: sha256Hex(ua),
+  };
+}
+
 export default async function handler(req, res) {
   const sb = supabaseAdmin();
   const url = new URL(req.url, `https://${req.headers.host}`);
   const stepParam = url.searchParams.get("step") || "0";
-  const wk = (url.searchParams.get("wk") || "").trim(); // 
+  const wk = (url.searchParams.get("wk") || "").trim(); // token Work.ink
+
   let step = parseInt(stepParam, 10);
   if (isNaN(step) || step < 0) step = 0;
   if (step > 2) step = 2;
@@ -63,18 +76,40 @@ export default async function handler(req, res) {
   const stateCookie = cookies.keyflow;
   const state = stateCookie ? verifyState(stateCookie) : null;
 
+  // Cookie httpOnly nonce (non lisible par JS)
+  const nonceCookie = (cookies.kfn || "").toString();
+
   // stage:
   // -1 = none
   // 0 = started
   // 1 = step1 completed
   let stage = -1;
-  if (state && typeof state.stage === "number" && state.stage >= -1 && state.stage <= 1) {
+  let nonceHash = "";
+  let boundIpHash = "";
+  let boundUaHash = "";
+
+  if (state && typeof state.stage === "number") {
     stage = state.stage;
+    nonceHash = (state.nonceHash || "").toString();
+    boundIpHash = (state.ipHash || "").toString();
+    boundUaHash = (state.uaHash || "").toString();
   }
 
   // STEP 0
   if (step === 0) {
-    setCookie(res, "keyflow", signState({ stage: 0 }), {
+    // Génère un nonce nouveau et le met en cookie httpOnly
+    const nonce = randomToken(18); // 36 hex chars
+    const nHash = sha256Hex(nonce);
+
+    setCookie(res, "kfn", nonce, {
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: true,
+      maxAge: 3600000
+    });
+
+    // Stocke nonceHash dans le state signé (anti-tamper)
+    setCookie(res, "keyflow", signState({ stage: 0, nonceHash: nHash }), {
       httpOnly: true,
       sameSite: "Lax",
       secure: true,
@@ -93,24 +128,38 @@ export default async function handler(req, res) {
 
   // STEP 1
   if (step === 1) {
-    // Pour valider Step1, il faut wk (token Work.ink) => impossible de bypass sans complétion
+    // Pour valider Step1, il faut wk + nonce cookie cohérent avec state
     if (wk) {
+      if (stage !== 0) return html(res, 200, renderBypassError());
+      if (!nonceCookie || !nonceHash) return html(res, 200, renderBypassError());
+      if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypassError());
+
       const expectedLinkId = process.env.WORKINK_STEP1_LINK_ID || "";
       const v = await verifyWorkinkToken({ token: wk, expectedLinkId, req, deleteToken: true });
       if (!v.ok) return html(res, 200, renderBypassError());
 
-      setCookie(res, "keyflow", signState({ stage: 1 }), {
+      // Bind strict fingerprint now (IP + UA)
+      const fp = getStrictFingerprint(req);
+
+      setCookie(res, "keyflow", signState({
+        stage: 1,
+        nonceHash,
+        ipHash: fp.ipHash,
+        uaHash: fp.uaHash
+      }), {
         httpOnly: true,
         sameSite: "Lax",
         secure: true,
         maxAge: 3600000
       });
 
-      // Nettoie l’URL
       return redirect(res, 302, "/key?step=1");
     }
 
     if (stage !== 1) return html(res, 200, renderBypassError());
+    // On exige aussi que le nonce cookie existe toujours
+    if (!nonceCookie || !nonceHash) return html(res, 200, renderBypassError());
+    if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypassError());
 
     return html(res, 200, renderStepPage({
       step: 1,
@@ -124,15 +173,23 @@ export default async function handler(req, res) {
 
   // STEP 2
   if (step === 2) {
-    // double sécurité: faut avoir fait step1 sur CE navigateur + wk step2 valide
+    // Exige: step1 fait + nonce cookie ok + IP/UA identiques + wk valide
     if (stage !== 1) return html(res, 200, renderBypassError());
     if (!wk) return html(res, 200, renderBypassError());
+
+    if (!nonceCookie || !nonceHash) return html(res, 200, renderBypassError());
+    if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypassError());
+
+    const fp = getStrictFingerprint(req);
+    if (!boundIpHash || !boundUaHash) return html(res, 200, renderBypassError());
+    if (fp.ipHash !== boundIpHash) return html(res, 200, renderBypassError());
+    if (fp.uaHash !== boundUaHash) return html(res, 200, renderBypassError());
 
     const expectedLinkId = process.env.WORKINK_STEP2_LINK_ID || "";
     const v = await verifyWorkinkToken({ token: wk, expectedLinkId, req, deleteToken: true });
     if (!v.ok) return html(res, 200, renderBypassError());
 
-    // generate key
+    // Generate key
     const duration_type = "1d";
     const keyValue = crypto.randomBytes(12).toString("hex");
     const { error: ierr } = await sb
@@ -140,7 +197,13 @@ export default async function handler(req, res) {
       .insert([{ key_value: keyValue, duration_type }]);
     if (ierr) return html(res, 500, renderBypassError());
 
-    // reset stage
+    // Reset + delete nonce cookie (en pratique on le “remplace” par un token vide)
+    setCookie(res, "kfn", "", {
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: true,
+      maxAge: 1
+    });
     setCookie(res, "keyflow", signState({ stage: -1 }), {
       httpOnly: true,
       sameSite: "Lax",
