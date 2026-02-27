@@ -1,7 +1,7 @@
 import { supabaseAdmin } from "../lib/supabase.js";
 import { redirect, randomToken } from "../lib/http.js";
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.BASE_URL || "http://sharkx.lol";
 const WORKINK_STEP1 = process.env.WORKINK_STEP1_URL || "https://work.ink/2kKN/step1";
 const TOKEN_TTL_MS = 15 * 60 * 1000;
 
@@ -23,4 +23,5 @@ export default async function handler(req, res) {
     : `${WORKINK_STEP1}?redirect=${encodeURIComponent(redirectUrl)}`;
 
   return redirect(res, 302, workinkUrl);
+
 }
