@@ -1,5 +1,7 @@
 {
   "rewrites": [
+    { "source": "/public/panel.html", "destination": "/panel.html" },
+
     { "source": "/key", "destination": "/api/key" },
     { "source": "/key/goto-step1", "destination": "/api/key-goto-step1" },
     { "source": "/key/goto-step2", "destination": "/api/key-goto-step2" },
