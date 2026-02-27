@@ -1,0 +1,18 @@
+{
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "rewrites": [
+    { "source": "/key", "destination": "/api/key" },
+    { "source": "/key/goto-step1", "destination": "/api/key-goto-step1" },
+    { "source": "/key/goto-step2", "destination": "/api/key-goto-step2" },
+
+    { "source": "/api/validate-key", "destination": "/api/validate-key" },
+
+    { "source": "/api/admin/login", "destination": "/api/admin/login" },
+    { "source": "/api/admin/keys", "destination": "/api/admin/keys" },
+    { "source": "/api/admin/keys/delete", "destination": "/api/admin/delete-key" }
+  ]
+}

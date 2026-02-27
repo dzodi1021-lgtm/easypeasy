@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Key System Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg1:#050816;
+      --bg2:#020617;
+      --card:#020617;
+      --card2:#0b1120;
+      --accent:#4ade80;
+      --accent-soft:rgba(74,222,128,.12);
+      --border:rgba(148,163,184,.35);
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,.18), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(249,115,22,.16), transparent 55%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+    }
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:32px 16px 40px;
+    }
+    .titleRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin-bottom:20px;
+    }
+    h1{
+      margin:0;
+      font-size:26px;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      color:#f9fafb;
+    }
+    .badge{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,.9);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .card{
+      background:var(--card);
+      border-radius:18px;
+      border:1px solid rgba(15,23,42,1);
+      box-shadow:0 24px 60px rgba(0,0,0,.7);
+      padding:18px 18px 16px;
+      margin-bottom:18px;
+    }
+    .cardHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .cardTitle{
+      font-size:14px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .pill{
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,.9);
+      font-size:11px;
+      color:var(--muted);
+    }
+    label{
+      display:block;
+      font-size:13px;
+      margin-bottom:4px;
+      color:var(--muted);
+    }
+    input, select{
+      width:100%;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid rgba(31,41,55,1);
+      background:#020617;
+      color:var(--text);
+      font-size:14px;
+    }
+    input:focus, select:focus{
+      outline:none;
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(74,222,128,.6);
+    }
+    button{
+      border:none;
+      border-radius:10px;
+      padding:9px 14px;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .btnPrimary{
+      background:linear-gradient(135deg,#22c55e,#4ade80);
+      color:#020617;
+      box-shadow:0 14px 40px rgba(34,197,94,.5);
+    }
+    .btnPrimary:hover{
+      filter:brightness(1.05);
+      transform:translateY(-1px);
+    }
+    .btnGhost{
+      background:transparent;
+      color:var(--muted);
+      border:1px solid var(--border);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+    }
+    @media (max-width:900px){
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    }
+    @media (max-width:640px){
+      .grid{grid-template-columns:1fr;}
+      .titleRow{flex-direction:column;align-items:flex-start;}
+    }
+    .field{margin-bottom:10px;}
+    .tableWrap{
+      max-height:420px;
+      overflow:auto;
+      border-radius:14px;
+      border:1px solid rgba(31,41,55,1);
+      background:var(--card2);
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    thead{
+      background:#020617;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    th, td{
+      padding:8px 10px;
+      border-bottom:1px solid rgba(31,41,55,1);
+      text-align:left;
+      white-space:nowrap;
+    }
+    th{
+      font-weight:600;
+      color:var(--muted);
+      font-size:12px;
+    }
+    tbody tr:nth-child(even){
+      background:rgba(15,23,42,.85);
+    }
+    tbody tr:hover{
+      background:rgba(15,23,42,1);
+    }
+    .status-badge{
+      padding:3px 8px;
+      border-radius:999px;
+      font-size:11px;
+      border:1px solid rgba(55,65,81,1);
+    }
+    .status-unused{color:#e5e7eb;background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.5);}
+    .status-active{color:#bbf7d0;background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.6);}
+    .status-expired{color:#fecaca;background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.6);}
+    .tag{
+      display:inline-flex;
+      padding:3px 7px;
+      border-radius:999px;
+      border:1px solid rgba(55,65,81,1);
+      font-size:11px;
+      color:var(--muted);
+      background:rgba(15,23,42,.8);
+    }
+    .muted{color:var(--muted);font-size:12px;}
+    .danger-btn{
+      padding:5px 9px;
+      border-radius:999px;
+      border:1px solid rgba(248,113,113,.7);
+      background:rgba(248,113,113,.12);
+      color:#fecaca;
+      font-size:11px;
+      cursor:pointer;
+    }
+    .danger-btn:hover{
+      background:rgba(248,113,113,.2);
+    }
+    .msg{
+      font-size:12px;
+      margin-top:8px;
+      min-height:16px;
+    }
+    .msg-ok{color:#bbf7d0;}
+    .msg-err{color:#fecaca;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="titleRow">
+      <div>
+        <h1>Key Control Panel</h1>
+        <div class="muted">Manage keys, durations, HWID locks and status.</div>
+      </div>
+      <span class="badge">Admin only</span>
+    </div>
+
+    <div class="card" id="loginCard">
+      <div class="cardHeader">
+        <div class="cardTitle">Admin Login</div>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label for="loginUser">Username</label>
+          <input id="loginUser" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="loginPass">Password</label>
+          <input id="loginPass" type="password" autocomplete="off" />
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end;">
+          <button class="btnPrimary" id="loginBtn">Login</button>
+        </div>
+      </div>
+      <div class="msg" id="loginMsg"></div>
+    </div>
+
+    <div id="mainPanel" style="display:none;">
+      <div class="card">
+        <div class="cardHeader">
+          <div class="cardTitle">Create key</div>
+          <span class="pill">Durations: 1,3,7,14,30 days or lifetime</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="durationSelect">Duration</label>
+            <select id="durationSelect">
+              <option value="1d">1 day</option>
+              <option value="3d">3 days</option>
+              <option value="7d">7 days</option>
+              <option value="14d">14 days</option>
+              <option value="30d">30 days</option>
+              <option value="lifetime">Lifetime</option>
+            </select>
+          </div>
+          <div class="field" style="display:flex;align-items:flex-end;">
+            <button class="btnPrimary" id="createKeyBtn">Generate key</button>
+          </div>
+          <div class="field">
+            <label>Last generated key</label>
+            <input id="lastKey" readonly />
+          </div>
+        </div>
+        <div class="msg" id="createMsg"></div>
+      </div>
+
+      <div class="card">
+        <div class="cardHeader">
+          <div class="cardTitle">Keys</div>
+          <span class="pill" id="keysCount">0 keys</span>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Status</th>
+                <th>Duration</th>
+                <th>First use</th>
+                <th>Expires</th>
+                <th>HWID</th>
+                <th>Roblox</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="keysBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const loginCard  = document.getElementById("loginCard");
+    const mainPanel  = document.getElementById("mainPanel");
+    const loginUser  = document.getElementById("loginUser");
+    const loginPass  = document.getElementById("loginPass");
+    const loginBtn   = document.getElementById("loginBtn");
+    const loginMsg   = document.getElementById("loginMsg");
+    const createBtn  = document.getElementById("createKeyBtn");
+    const durationEl = document.getElementById("durationSelect");
+    const createMsg  = document.getElementById("createMsg");
+    const lastKeyEl  = document.getElementById("lastKey");
+    const keysBody   = document.getElementById("keysBody");
+    const keysCount  = document.getElementById("keysCount");
+
+    function setLoginMsg(msg, ok){
+      loginMsg.textContent = msg || "";
+      loginMsg.className = "msg " + (ok ? "msg-ok":"msg-err");
+    }
+    function setCreateMsg(msg, ok){
+      createMsg.textContent = msg || "";
+      createMsg.className = "msg " + (ok ? "msg-ok":"msg-err");
+    }
+
+    async function api(path, options){
+      const res = await fetch(path, { credentials:"include", ...options });
+      const text = await res.text();
+      let data=null;
+      try{ data = JSON.parse(text); }catch{ data = null; }
+      return { res, data, raw:text };
+    }
+
+    async function login(){
+      setLoginMsg("", true);
+      const u = loginUser.value.trim();
+      const p = loginPass.value;
+
+      if(!u || !p){
+        setLoginMsg("Please enter username and password.", false);
+        return;
+      }
+
+      try{
+        const { res, data } = await api("/api/admin/login", {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify({ username:u, password:p })
+        });
+        if(!res.ok || !data || !data.ok){
+          setLoginMsg("Invalid credentials.", false);
+          return;
+        }
+        setLoginMsg("Logged in.", true);
+        loginCard.style.display = "none";
+        mainPanel.style.display = "block";
+        loadKeys();
+      }catch(e){
+        setLoginMsg("Request failed.", false);
+      }
+    }
+
+    async function loadKeys(){
+      keysBody.innerHTML = "<tr><td colspan='8' class='muted'>Loading…</td></tr>";
+      try{
+        const { res, data } = await api("/api/admin/keys");
+        if(!res.ok || !Array.isArray(data)){
+          keysBody.innerHTML = "<tr><td colspan='8' class='muted'>Failed to load keys.</td></tr>";
+          keysCount.textContent = "0 keys";
+          return;
+        }
+        keysBody.innerHTML = "";
+        keysCount.textContent = data.length + " keys";
+
+        data.forEach(k => {
+          const tr = document.createElement("tr");
+
+          const statusClass =
+            k.status === "active" ? "status-active" :
+            k.status === "expired" ? "status-expired" :
+            "status-unused";
+
+          const firstUsed = k.first_used_at ? new Date(k.first_used_at).toLocaleString() : "—";
+          const expires   = k.expires_at ? new Date(k.expires_at).toLocaleString() : (k.duration_type === "lifetime" ? "Never" : "Not started");
+
+          tr.innerHTML = `
+            <td><span class="tag">${k.key_value}</span></td>
+            <td><span class="status-badge ${statusClass}">${k.status}</span></td>
+            <td>${k.duration_type}</td>
+            <td>${firstUsed}</td>
+            <td>${expires}</td>
+            <td>${k.hwid ? '<span class="muted">'+k.hwid+'</span>' : '—'}</td>
+            <td>${k.roblox_username ? k.roblox_username + " ("+k.roblox_user_id+")" : '—'}</td>
+            <td><button class="danger-btn" data-id="${k.id}">Delete</button></td>
+          `;
+          keysBody.appendChild(tr);
+        });
+      }catch(e){
+        keysBody.innerHTML = "<tr><td colspan='8' class='muted'>Error.</td></tr>";
+        keysCount.textContent = "0 keys";
+      }
+    }
+
+    async function createKey(){
+      setCreateMsg("", true);
+      const dur = durationEl.value;
+      try{
+        const { res, data } = await api("/api/admin/keys", {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify({ duration_type: dur })
+        });
+        if(!res.ok || !data || !data.ok){
+          setCreateMsg("Failed to create key.", false);
+          return;
+        }
+        lastKeyEl.value = data.key.key_value;
+        setCreateMsg("Key created.", true);
+        loadKeys();
+      }catch(e){
+        setCreateMsg("Request failed.", false);
+      }
+    }
+
+    async function deleteKey(id){
+      if(!confirm("Delete this key?")) return;
+      try{
+        const { res, data } = await api("/api/admin/keys/delete?id="+encodeURIComponent(id), {
+          method:"DELETE"
+        });
+        if(!res.ok || !data || !data.ok){
+          alert("Failed to delete key.");
+          return;
+        }
+        loadKeys();
+      }catch(e){
+        alert("Error.");
+      }
+    }
+
+    loginBtn.addEventListener("click", login);
+    loginPass.addEventListener("keydown", e => { if(e.key === "Enter") login(); });
+    loginUser.addEventListener("keydown", e => { if(e.key === "Enter") login(); });
+
+    createBtn.addEventListener("click", createKey);
+
+    keysBody.addEventListener("click", e => {
+      const btn = e.target.closest("button[data-id]");
+      if(!btn) return;
+      deleteKey(btn.dataset.id);
+    });
+  })();
+  </script>
+</body>
+</html>
