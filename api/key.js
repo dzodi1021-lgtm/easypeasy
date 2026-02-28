@@ -1,8 +1,8 @@
 import { supabaseAdmin } from "../lib/supabase.js";
 import { html, redirect, parseCookies, setCookie, randomToken } from "../lib/http.js";
-import { signState, verifyState } from "../lib/state.js";
 import crypto from "crypto";
 import { verifyWorkinkToken, getClientIp, getUserAgent, sha256Hex } from "../lib/workink.js";
+import { signState, verifyState } from "../lib/state.js";
 
 function renderBypassError() {
   return `<!doctype html>
@@ -50,9 +50,6 @@ function renderStepPage(opts) {
 </body></html>`;
 }
 
-/**
- * Strict binder: nonce httpOnly + IP hash + UA hash.
- */
 function getStrictFingerprint(req) {
   const ip = getClientIp(req);
   const ua = getUserAgent(req);
@@ -66,7 +63,7 @@ export default async function handler(req, res) {
   const sb = supabaseAdmin();
   const url = new URL(req.url, `https://${req.headers.host}`);
   const stepParam = url.searchParams.get("step") || "0";
-  const wk = (url.searchParams.get("wk") || "").trim(); // token Work.ink
+  const wk = (url.searchParams.get("wk") || "").trim();
 
   let step = parseInt(stepParam, 10);
   if (isNaN(step) || step < 0) step = 0;
@@ -76,13 +73,8 @@ export default async function handler(req, res) {
   const stateCookie = cookies.keyflow;
   const state = stateCookie ? verifyState(stateCookie) : null;
 
-  // Cookie httpOnly nonce (non lisible par JS)
   const nonceCookie = (cookies.kfn || "").toString();
 
-  // stage:
-  // -1 = none
-  // 0 = started
-  // 1 = step1 completed
   let stage = -1;
   let nonceHash = "";
   let boundIpHash = "";
@@ -97,23 +89,23 @@ export default async function handler(req, res) {
 
   // STEP 0
   if (step === 0) {
-    // Génère un nonce nouveau et le met en cookie httpOnly
-    const nonce = randomToken(18); // 36 hex chars
+    const nonce = randomToken(18);
     const nHash = sha256Hex(nonce);
 
     setCookie(res, "kfn", nonce, {
       httpOnly: true,
       sameSite: "Lax",
       secure: true,
-      maxAge: 3600000
+      maxAge: 3600000,
+      domain: ".sharkx.lol" // ✅ partage www/non-www
     });
 
-    // Stocke nonceHash dans le state signé (anti-tamper)
     setCookie(res, "keyflow", signState({ stage: 0, nonceHash: nHash }), {
       httpOnly: true,
       sameSite: "Lax",
       secure: true,
-      maxAge: 3600000
+      maxAge: 3600000,
+      domain: ".sharkx.lol" // ✅ partage www/non-www
     });
 
     return html(res, 200, renderStepPage({
@@ -128,7 +120,6 @@ export default async function handler(req, res) {
 
   // STEP 1
   if (step === 1) {
-    // Pour valider Step1, il faut wk + nonce cookie cohérent avec state
     if (wk) {
       if (stage !== 0) return html(res, 200, renderBypassError());
       if (!nonceCookie || !nonceHash) return html(res, 200, renderBypassError());
@@ -138,7 +129,6 @@ export default async function handler(req, res) {
       const v = await verifyWorkinkToken({ token: wk, expectedLinkId, req, deleteToken: true });
       if (!v.ok) return html(res, 200, renderBypassError());
 
-      // Bind strict fingerprint now (IP + UA)
       const fp = getStrictFingerprint(req);
 
       setCookie(res, "keyflow", signState({
@@ -150,14 +140,14 @@ export default async function handler(req, res) {
         httpOnly: true,
         sameSite: "Lax",
         secure: true,
-        maxAge: 3600000
+        maxAge: 3600000,
+        domain: ".sharkx.lol" // ✅ partage www/non-www
       });
 
       return redirect(res, 302, "/key?step=1");
     }
 
     if (stage !== 1) return html(res, 200, renderBypassError());
-    // On exige aussi que le nonce cookie existe toujours
     if (!nonceCookie || !nonceHash) return html(res, 200, renderBypassError());
     if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypassError());
 
@@ -173,7 +163,6 @@ export default async function handler(req, res) {
 
   // STEP 2
   if (step === 2) {
-    // Exige: step1 fait + nonce cookie ok + IP/UA identiques + wk valide
     if (stage !== 1) return html(res, 200, renderBypassError());
     if (!wk) return html(res, 200, renderBypassError());
 
@@ -189,26 +178,28 @@ export default async function handler(req, res) {
     const v = await verifyWorkinkToken({ token: wk, expectedLinkId, req, deleteToken: true });
     if (!v.ok) return html(res, 200, renderBypassError());
 
-    // Generate key
     const duration_type = "1d";
     const keyValue = crypto.randomBytes(12).toString("hex");
+
     const { error: ierr } = await sb
       .from("keys")
       .insert([{ key_value: keyValue, duration_type }]);
     if (ierr) return html(res, 500, renderBypassError());
 
-    // Reset + delete nonce cookie (en pratique on le “remplace” par un token vide)
+    // reset
     setCookie(res, "kfn", "", {
       httpOnly: true,
       sameSite: "Lax",
       secure: true,
-      maxAge: 1
+      maxAge: 1,
+      domain: ".sharkx.lol" // ✅
     });
     setCookie(res, "keyflow", signState({ stage: -1 }), {
       httpOnly: true,
       sameSite: "Lax",
       secure: true,
-      maxAge: 3600000
+      maxAge: 3600000,
+      domain: ".sharkx.lol" // ✅
     });
 
     return html(res, 200, renderStepPage({
