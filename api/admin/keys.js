@@ -3,19 +3,15 @@ import { supabaseAdmin } from "../../lib/supabase.js";
 import { json, readJson, parseCookies } from "../../lib/http.js";
 import { credentialsSignature } from "../../lib/workink.js";
 
-function hide(res) {
-  // On “cache” l’endpoint
-  res.statusCode = 404;
-  res.setHeader("Content-Type", "text/plain; charset=utf-8");
-  res.end("Not found");
-}
-
 async function requireAdmin(req, res) {
   const sb = supabaseAdmin();
   const cookies = parseCookies(req);
-  const tok = cookies["__Host-admin_session"];
+  const tok = cookies.admin_session;
 
-  if (!tok) { hide(res); return null; }
+  if (!tok) {
+    json(res, 401, { ok: false, message: "Unauthorized" });
+    return null;
+  }
 
   const { data, error } = await sb
     .from("admin_sessions")
@@ -23,11 +19,22 @@ async function requireAdmin(req, res) {
     .eq("session_token", tok)
     .limit(1);
 
-  if (error || !data || data.length === 0) { hide(res); return null; }
-  if (new Date(data[0].expires_at) < new Date()) { hide(res); return null; }
+  if (error || !data || data.length === 0) {
+    json(res, 401, { ok: false, message: "Unauthorized" });
+    return null;
+  }
 
+  if (new Date(data[0].expires_at) < new Date()) {
+    json(res, 401, { ok: false, message: "Session expired" });
+    return null;
+  }
+
+  // Invalidation auto si tu changes ADMIN_USERNAME/PASSWORD
   const curSig = credentialsSignature();
-  if (data[0].cred_sig && data[0].cred_sig !== curSig) { hide(res); return null; }
+  if (data[0].cred_sig && data[0].cred_sig !== curSig) {
+    json(res, 401, { ok: false, message: "Session expired" });
+    return null;
+  }
 
   return sb;
 }
