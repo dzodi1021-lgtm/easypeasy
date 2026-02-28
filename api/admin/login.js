@@ -29,12 +29,13 @@ export default async function handler(req, res) {
     cred_sig
   }]);
 
-  // __Host- : cookie "host-only", Secure obligatoire, Path=/ obligatoire, pas de Domain
-  setCookie(res, "__Host-admin_session", sessionToken, {
+  // ✅ IMPORTANT: Domain=.sharkx.lol => cookie valable pour www + non-www
+  setCookie(res, "admin_session", sessionToken, {
     httpOnly: true,
     sameSite: "Lax",
     secure: true,
     maxAge: SESSION_TTL_MS,
+    domain: ".sharkx.lol",
     path: "/"
   });
 
