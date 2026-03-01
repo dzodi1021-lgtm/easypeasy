@@ -2,146 +2,320 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Key System Panel</title>
+  <title>VITTEL | Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
-      --bg1:#050816;
-      --bg2:#020617;
-      --card:#020617;
-      --card2:#0b1120;
-      --accent:#4ade80;
-      --accent-soft:rgba(74,222,128,.12);
-      --border:rgba(148,163,184,.35);
-      --text:#e5e7eb;
-      --muted:#9ca3af;
+      --bg:#0b0b0d;
+      --card:rgba(255,255,255,.04);
+      --line:rgba(255,255,255,.10);
+      --line2:rgba(255,255,255,.16);
+      --text:#f2f2f2;
+      --muted:rgba(255,255,255,.62);
+      --btn:#f2f2f2;
+      --btnText:#0b0b0d;
+      --danger:#ff4d4d;
+      --ok:#2cff9a;
+      --radius:18px;
+      --radius2:14px;
+      --shadow: 0 30px 90px rgba(0,0,0,.55);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
-    *{box-sizing:border-box;}
+    *{box-sizing:border-box}
     body{
       margin:0;
       min-height:100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       color:var(--text);
       background:
-        radial-gradient(circle at top left, rgba(56,189,248,.18), transparent 60%),
-        radial-gradient(circle at bottom right, rgba(249,115,22,.16), transparent 55%),
-        linear-gradient(160deg, var(--bg1), var(--bg2));
+        radial-gradient(900px 420px at 15% 20%, rgba(255,255,255,.06), transparent 60%),
+        radial-gradient(700px 420px at 85% 75%, rgba(255,255,255,.04), transparent 60%),
+        linear-gradient(180deg, #0b0b0d, #070709);
+      padding:28px 14px;
+      display:flex;
+      justify-content:center;
     }
-    .wrap{max-width:1100px;margin:0 auto;padding:32px 16px 40px;}
-    .titleRow{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;}
-    h1{margin:0;font-size:26px;letter-spacing:.05em;text-transform:uppercase;color:#f9fafb;}
-    .badge{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(15,23,42,.9);font-size:12px;color:var(--muted);}
-    .card{background:var(--card);border-radius:18px;border:1px solid rgba(15,23,42,1);box-shadow:0 24px 60px rgba(0,0,0,.7);padding:18px 18px 16px;margin-bottom:18px;}
-    .cardHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-    .cardTitle{font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
-    .pill{padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(15,23,42,.9);font-size:11px;color:var(--muted);}
-    label{display:block;font-size:13px;margin-bottom:4px;color:var(--muted);}
+    .wrap{ width:min(1200px, 100%); }
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:16px 18px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background: rgba(0,0,0,.30);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      margin-bottom:14px;
+    }
+    .brand{
+      display:flex;align-items:center;gap:10px;
+      letter-spacing:.16em;text-transform:uppercase;
+      font-weight:800;font-size:13px;
+    }
+    .brand img{
+      width:18px;height:18px;border-radius:6px;object-fit:cover;
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: 0 8px 24px rgba(0,0,0,.45);
+      background:#000;
+    }
+    .sub{ color:var(--muted); font-size:12px; letter-spacing:.06em; }
+    .grid{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:14px;
+    }
+    @media (max-width:980px){
+      .grid{ grid-template-columns:1fr; }
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background: rgba(0,0,0,.26);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .cardHead{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: rgba(255,255,255,.03);
+    }
+    .cardTitle{
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .pill{
+      font-size:11px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.75);
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+    }
+    .body{ padding:14px 16px; }
+    label{
+      display:block;
+      font-size:12px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin:0 0 6px;
+    }
     input, select{
       width:100%;
-      padding:8px 10px;
-      border-radius:10px;
-      border:1px solid rgba(31,41,55,1);
-      background:#020617;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
       color:var(--text);
+      outline:none;
       font-size:14px;
     }
-    input:focus, select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(74,222,128,.6);}
-    button{
-      border:none;border-radius:10px;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer;
-      display:inline-flex;align-items:center;gap:6px;
+    input:focus, select:focus{
+      border-color: rgba(255,255,255,.28);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.06);
     }
-    .btnPrimary{background:linear-gradient(135deg,#22c55e,#4ade80);color:#020617;box-shadow:0 14px 40px rgba(34,197,94,.5);}
-    .btnPrimary:hover{filter:brightness(1.05);transform:translateY(-1px);}
-    .btnGhost{background:transparent;color:var(--muted);border:1px solid var(--border);}
-    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
-    @media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
-    @media (max-width:640px){.grid{grid-template-columns:1fr;}.titleRow{flex-direction:column;align-items:flex-start;}}
-    .field{margin-bottom:10px;}
-    .tableWrap{max-height:420px;overflow:auto;border-radius:14px;border:1px solid rgba(31,41,55,1);background:var(--card2);}
-    table{width:100%;border-collapse:collapse;font-size:13px;}
-    thead{background:#020617;position:sticky;top:0;z-index:1;}
-    th, td{padding:8px 10px;border-bottom:1px solid rgba(31,41,55,1);text-align:left;white-space:nowrap;}
-    th{font-weight:600;color:var(--muted);font-size:12px;}
-    tbody tr:nth-child(even){background:rgba(15,23,42,.85);}
-    tbody tr:hover{background:rgba(15,23,42,1);}
-    .status-badge{padding:3px 8px;border-radius:999px;font-size:11px;border:1px solid rgba(55,65,81,1);}
-    .status-unused{color:#e5e7eb;background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.5);}
-    .status-active{color:#bbf7d0;background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.6);}
-    .status-expired{color:#fecaca;background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.6);}
-    .tag{display:inline-flex;padding:3px 7px;border-radius:999px;border:1px solid rgba(55,65,81,1);font-size:11px;color:var(--muted);background:rgba(15,23,42,.8);}
-    .muted{color:var(--muted);font-size:12px;}
-    .danger-btn{padding:5px 9px;border-radius:999px;border:1px solid rgba(248,113,113,.7);background:rgba(248,113,113,.12);color:#fecaca;font-size:11px;cursor:pointer;}
-    .danger-btn:hover{background:rgba(248,113,113,.2);}
-    .msg{font-size:12px;margin-top:8px;min-height:16px;}
-    .msg-ok{color:#bbf7d0;}
-    .msg-err{color:#fecaca;}
+    .row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    @media (max-width:520px){ .row{ grid-template-columns:1fr; } }
+
+    .btn{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      border-radius:16px;
+      padding:12px 14px;
+      font-weight:800;
+      letter-spacing:.02em;
+      font-size:14px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      background: var(--btn);
+      color: var(--btnText);
+      transition: transform .12s ease, filter .12s ease;
+      width:100%;
+    }
+    .btn:hover{ transform: translateY(-1px); filter: brightness(1.03); }
+    .btnGhost{
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line2);
+    }
+    .msg{
+      margin-top:10px;
+      font-size:12px;
+      color:var(--muted);
+      min-height:16px;
+    }
+    .msg.ok{ color: rgba(44,255,154,.82); }
+    .msg.err{ color: rgba(255,77,77,.85); }
+
+    .tableWrap{
+      border-top:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      overflow:auto;
+      max-height: 560px;
+    }
+    table{ width:100%; border-collapse:collapse; font-size:13px; }
+    thead{
+      position:sticky; top:0; z-index:2;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+    }
+    th, td{
+      padding:12px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      text-align:left;
+      white-space:nowrap;
+    }
+    th{
+      font-size:11px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.60);
+    }
+    tbody tr:hover{ background: rgba(255,255,255,.03); }
+    .key{
+      font-family: var(--mono);
+      letter-spacing:.02em;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.03);
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+    .tinyBtn{
+      border:none; cursor:pointer;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      background: rgba(255,255,255,.12);
+      color:rgba(255,255,255,.92);
+    }
+    .tinyBtn:hover{ filter: brightness(1.08); }
+    .danger{
+      background: rgba(255,77,77,.14);
+      color: rgba(255,77,77,.95);
+      border: 1px solid rgba(255,77,77,.22);
+    }
+    .badgeStatus{
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.03);
+    }
+    .st-active{ color: rgba(44,255,154,.92); border-color: rgba(44,255,154,.22); background: rgba(44,255,154,.08); }
+    .st-expired{ color: rgba(255,77,77,.92); border-color: rgba(255,77,77,.22); background: rgba(255,77,77,.08); }
+    .st-unused{ color: rgba(255,255,255,.82); }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.70);
+      color: rgba(255,255,255,.86);
+      font-size:12px;
+      letter-spacing:.02em;
+      display:none;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      z-index:999;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="titleRow">
+    <div class="top">
       <div>
-        <h1>Key Control Panel</h1>
-        <div class="muted">Manage keys, durations, HWID locks and status.</div>
+        <div class="brand">
+          <img src="https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp" alt="logo"/>
+          <span>VITTEL</span>
+        </div>
+        <div class="sub">Admin panel • session saved • auto-refresh</div>
       </div>
-      <span class="badge">Admin only</span>
+      <div class="pill" id="keysCount">0 keys</div>
     </div>
 
-    <div class="card" id="loginCard">
-      <div class="cardHeader">
-        <div class="cardTitle">Admin Login</div>
-        <span class="pill">Session saved (30 days)</span>
+    <div class="grid">
+      <div class="card" id="loginCard">
+        <div class="cardHead">
+          <div class="cardTitle">Admin Login</div>
+          <div class="pill">Secure</div>
+        </div>
+        <div class="body">
+          <div class="row">
+            <div>
+              <label for="loginUser">Username</label>
+              <input id="loginUser" autocomplete="off" />
+            </div>
+            <div>
+              <label for="loginPass">Password</label>
+              <input id="loginPass" type="password" autocomplete="off" />
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <button class="btn" id="loginBtn">Login</button>
+          </div>
+          <div class="msg" id="loginMsg"></div>
+        </div>
       </div>
-      <div class="grid">
-        <div class="field">
-          <label for="loginUser">Username</label>
-          <input id="loginUser" autocomplete="off" />
-        </div>
-        <div class="field">
-          <label for="loginPass">Password</label>
-          <input id="loginPass" type="password" autocomplete="off" />
-        </div>
-        <div class="field" style="display:flex;align-items:flex-end;">
-          <button class="btnPrimary" id="loginBtn">Login</button>
-        </div>
-      </div>
-      <div class="msg" id="loginMsg"></div>
-    </div>
 
-    <div id="mainPanel" style="display:none;">
-      <div class="card">
-        <div class="cardHeader">
-          <div class="cardTitle">Create key</div>
-          <span class="pill">Durations: 1,3,7,14,30 days or lifetime</span>
+      <div class="card" id="mainPanel" style="display:none;">
+        <div class="cardHead">
+          <div class="cardTitle">Key management</div>
+          <div class="pill">Auto refresh: 3s</div>
         </div>
-        <div class="grid">
-          <div class="field">
-            <label for="durationSelect">Duration</label>
-            <select id="durationSelect">
-              <option value="1d">1 day</option>
-              <option value="3d">3 days</option>
-              <option value="7d">7 days</option>
-              <option value="14d">14 days</option>
-              <option value="30d">30 days</option>
-              <option value="lifetime">Lifetime</option>
-            </select>
+
+        <div class="body">
+          <div class="row">
+            <div>
+              <label for="durationSelect">Duration</label>
+              <select id="durationSelect">
+                <option value="1d">1 day</option>
+                <option value="3d">3 days</option>
+                <option value="7d">7 days</option>
+                <option value="14d">14 days</option>
+                <option value="30d">30 days</option>
+                <option value="lifetime">Lifetime</option>
+              </select>
+            </div>
+            <div>
+              <label>&nbsp;</label>
+              <button class="btn" id="createKeyBtn">Generate key</button>
+            </div>
           </div>
-          <div class="field" style="display:flex;align-items:flex-end;">
-            <button class="btnPrimary" id="createKeyBtn">Generate key</button>
-          </div>
-          <div class="field">
+
+          <div style="margin-top:10px;">
             <label>Last generated key</label>
             <input id="lastKey" readonly />
           </div>
-        </div>
-        <div class="msg" id="createMsg"></div>
-      </div>
 
-      <div class="card">
-        <div class="cardHeader">
-          <div class="cardTitle">Keys</div>
-          <span class="pill" id="keysCount">0 keys</span>
+          <div class="msg" id="createMsg"></div>
         </div>
+
         <div class="tableWrap">
           <table>
             <thead>
@@ -153,16 +327,17 @@
                 <th>Expires</th>
                 <th>HWID</th>
                 <th>Roblox</th>
-                <th></th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="keysBody"></tbody>
           </table>
         </div>
-        <div class="muted" style="margin-top:10px;">Auto-refresh: every 3 seconds.</div>
       </div>
     </div>
   </div>
+
+  <div class="toast" id="toast"></div>
 
   <script>
   (function(){
@@ -172,22 +347,28 @@
     const loginPass = document.getElementById("loginPass");
     const loginBtn = document.getElementById("loginBtn");
     const loginMsg = document.getElementById("loginMsg");
+
     const createBtn = document.getElementById("createKeyBtn");
     const durationEl = document.getElementById("durationSelect");
     const createMsg = document.getElementById("createMsg");
     const lastKeyEl = document.getElementById("lastKey");
+
     const keysBody = document.getElementById("keysBody");
     const keysCount = document.getElementById("keysCount");
+    const toast = document.getElementById("toast");
 
     let refreshTimer = null;
 
-    function setLoginMsg(msg, ok){
-      loginMsg.textContent = msg || "";
-      loginMsg.className = "msg " + (ok ? "msg-ok":"msg-err");
+    function showToast(text){
+      toast.textContent = text;
+      toast.style.display = "block";
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => toast.style.display = "none", 1400);
     }
-    function setCreateMsg(msg, ok){
-      createMsg.textContent = msg || "";
-      createMsg.className = "msg " + (ok ? "msg-ok":"msg-err");
+
+    function setMsg(el, msg, ok){
+      el.textContent = msg || "";
+      el.className = "msg " + (ok ? "ok" : "err");
     }
 
     async function api(path, options){
@@ -202,9 +383,7 @@
       loginCard.style.display = "none";
       mainPanel.style.display = "block";
       if (refreshTimer) clearInterval(refreshTimer);
-      refreshTimer = setInterval(() => {
-        if (mainPanel.style.display !== "none") loadKeys(true);
-      }, 3000);
+      refreshTimer = setInterval(() => loadKeys(true), 3000);
     }
 
     function showLogin(){
@@ -214,11 +393,11 @@
     }
 
     async function login(){
-      setLoginMsg("", true);
+      setMsg(loginMsg, "", true);
       const u = loginUser.value.trim();
       const p = loginPass.value;
       if(!u || !p){
-        setLoginMsg("Please enter username and password.", false);
+        setMsg(loginMsg, "Enter username and password.", false);
         return;
       }
       try{
@@ -228,61 +407,82 @@
           body:JSON.stringify({ username:u, password:p })
         });
         if(!res.ok || !data || !data.ok){
-          setLoginMsg("Invalid credentials.", false);
+          setMsg(loginMsg, "Invalid credentials.", false);
           return;
         }
-        setLoginMsg("Logged in.", true);
+        setMsg(loginMsg, "Logged in.", true);
         showPanel();
-        loadKeys();
+        loadKeys(true);
       }catch(e){
-        setLoginMsg("Request failed.", false);
+        setMsg(loginMsg, "Request failed.", false);
       }
     }
 
+    function esc(s){
+      return String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    function fmtDate(v){
+      if(!v) return "—";
+      try{ return new Date(v).toLocaleString(); }catch{ return "—"; }
+    }
+
     async function loadKeys(silent){
-      if (!silent) keysBody.innerHTML = "<tr><td colspan='8' class='muted'>Loading…</td></tr>";
+      if (!silent) keysBody.innerHTML = "<tr><td colspan='8' style='color:rgba(255,255,255,.55);padding:16px;'>Loading…</td></tr>";
       try{
         const { res, data } = await api("/api/admin/keys");
-        if (res.status === 401) {
+        if(res.status === 401){
           showLogin();
-          if (!silent) setLoginMsg("Session expired. Please login again.", false);
+          setMsg(loginMsg, "Session expired. Login again.", false);
           return;
         }
         if(!res.ok || !Array.isArray(data)){
-          keysBody.innerHTML = "<tr><td colspan='8' class='muted'>Failed to load keys.</td></tr>";
+          keysBody.innerHTML = "<tr><td colspan='8' style='color:rgba(255,255,255,.55);padding:16px;'>Failed to load keys.</td></tr>";
           keysCount.textContent = "0 keys";
           return;
         }
-        keysBody.innerHTML = "";
+
         keysCount.textContent = data.length + " keys";
+        keysBody.innerHTML = "";
+
         data.forEach(k => {
           const tr = document.createElement("tr");
+
           const statusClass =
-            k.status === "active" ? "status-active" :
-            k.status === "expired" ? "status-expired" :
-            "status-unused";
-          const firstUsed = k.first_used_at ? new Date(k.first_used_at).toLocaleString() : "—";
-          const expires = k.expires_at ? new Date(k.expires_at).toLocaleString() : (k.duration_type === "lifetime" ? "Never" : "Not started");
+            k.status === "active" ? "badgeStatus st-active" :
+            k.status === "expired" ? "badgeStatus st-expired" :
+            "badgeStatus st-unused";
+
+          const firstUsed = k.first_used_at ? fmtDate(k.first_used_at) : "—";
+          const expires = k.expires_at ? fmtDate(k.expires_at) : (k.duration_type === "lifetime" ? "Never" : "Not started");
+
           tr.innerHTML = `
-            <td><span class="tag">${k.key_value}</span></td>
-            <td><span class="status-badge ${statusClass}">${k.status}</span></td>
-            <td>${k.duration_type}</td>
-            <td>${firstUsed}</td>
-            <td>${expires}</td>
-            <td>${k.hwid ? '<span class="muted">'+k.hwid+'</span>' : '—'}</td>
-            <td>${k.roblox_username ? k.roblox_username + " ("+k.roblox_user_id+")" : '—'}</td>
-            <td><button class="danger-btn" data-id="${k.id}">Delete</button></td>
+            <td>
+              <span class="key">
+                <span>${esc(k.key_value)}</span>
+                <button class="tinyBtn" data-copy="${esc(k.key_value)}">Copy</button>
+              </span>
+            </td>
+            <td><span class="${statusClass}">${esc(k.status || "unused")}</span></td>
+            <td>${esc(k.duration_type || "")}</td>
+            <td>${esc(firstUsed)}</td>
+            <td>${esc(expires)}</td>
+            <td style="color:rgba(255,255,255,.70)">${k.hwid ? esc(k.hwid) : "—"}</td>
+            <td style="color:rgba(255,255,255,.70)">${k.roblox_username ? esc(k.roblox_username) + " ("+esc(k.roblox_user_id)+")" : "—"}</td>
+            <td>
+              <button class="tinyBtn danger" data-del="${esc(k.id)}">Delete</button>
+            </td>
           `;
           keysBody.appendChild(tr);
         });
+
       }catch(e){
-        keysBody.innerHTML = "<tr><td colspan='8' class='muted'>Error.</td></tr>";
-        keysCount.textContent = "0 keys";
+        keysBody.innerHTML = "<tr><td colspan='8' style='color:rgba(255,255,255,.55);padding:16px;'>Error.</td></tr>";
       }
     }
 
     async function createKey(){
-      setCreateMsg("", true);
+      setMsg(createMsg, "", true);
       const dur = durationEl.value;
       try{
         const { res, data } = await api("/api/admin/keys", {
@@ -290,20 +490,21 @@
           headers:{ "Content-Type":"application/json" },
           body:JSON.stringify({ duration_type: dur })
         });
-        if (res.status === 401) {
+        if(res.status === 401){
           showLogin();
-          setLoginMsg("Session expired. Please login again.", false);
+          setMsg(loginMsg, "Session expired. Login again.", false);
           return;
         }
         if(!res.ok || !data || !data.ok){
-          setCreateMsg("Failed to create key.", false);
+          setMsg(createMsg, "Failed to create key.", false);
           return;
         }
         lastKeyEl.value = data.key.key_value;
-        setCreateMsg("Key created.", true);
+        setMsg(createMsg, "Key created.", true);
+        showToast("Copied to field");
         loadKeys(true);
       }catch(e){
-        setCreateMsg("Request failed.", false);
+        setMsg(createMsg, "Request failed.", false);
       }
     }
 
@@ -311,41 +512,66 @@
       if(!confirm("Delete this key?")) return;
       try{
         const { res, data } = await api("/api/admin/keys/delete?id="+encodeURIComponent(id), { method:"DELETE" });
-        if (res.status === 401) {
+        if(res.status === 401){
           showLogin();
-          setLoginMsg("Session expired. Please login again.", false);
+          setMsg(loginMsg, "Session expired. Login again.", false);
           return;
         }
         if(!res.ok || !data || !data.ok){
           alert("Failed to delete key.");
           return;
         }
+        showToast("Deleted");
         loadKeys(true);
       }catch(e){
         alert("Error.");
       }
     }
 
-    // Auto session check on page load:
-    (async function boot(){
-      const { res } = await api("/api/admin/keys");
-      if (res.ok) {
-        showPanel();
-        loadKeys(true);
-      } else {
-        showLogin();
+    async function copyKey(val){
+      try{
+        await navigator.clipboard.writeText(val);
+        showToast("Copied");
+      }catch{
+        // fallback
+        const t = document.createElement("textarea");
+        t.value = val;
+        document.body.appendChild(t);
+        t.select();
+        try{ document.execCommand("copy"); showToast("Copied"); }catch{}
+        document.body.removeChild(t);
       }
-    })();
+    }
 
     loginBtn.addEventListener("click", login);
     loginPass.addEventListener("keydown", e => { if(e.key === "Enter") login(); });
     loginUser.addEventListener("keydown", e => { if(e.key === "Enter") login(); });
+
     createBtn.addEventListener("click", createKey);
-    keysBody.addEventListener("click", e => {
-      const btn = e.target.closest("button[data-id]");
-      if(!btn) return;
-      deleteKey(btn.dataset.id);
+
+    keysBody.addEventListener("click", (e) => {
+      const copyBtn = e.target.closest("button[data-copy]");
+      if(copyBtn){
+        copyKey(copyBtn.dataset.copy);
+        return;
+      }
+      const delBtn = e.target.closest("button[data-del]");
+      if(delBtn){
+        deleteKey(delBtn.dataset.del);
+        return;
+      }
     });
+
+    // Boot: auto session check
+    (async function boot(){
+      const { res } = await api("/api/admin/keys");
+      if(res.ok){
+        showPanel();
+        loadKeys(true);
+      }else{
+        showLogin();
+      }
+    })();
   })();
   </script>
 </body>
