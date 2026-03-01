@@ -4,50 +4,429 @@ import crypto from "crypto";
 import { verifyWorkinkToken, getClientIp, getUserAgent, sha256Hex } from "../lib/workink.js";
 import { signState, verifyState } from "../lib/state.js";
 
-function renderBypassError() {
+const BRAND_NAME = "VITTEL";
+const BRAND_RIGHT = "THE LOST FRONT";
+const BRAND_LOGO_URL = "https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp";
+const DISCORD_URL = "https://discord.gg/vittel";
+
+function layoutPage({ title, inner, footer = true }) {
   return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"/><title>Key system error</title></head>
-<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#020617;color:#e5e7eb;font-family:system-ui,sans-serif;">
-  <div style="background:#020617;border-radius:18px;border:1px solid rgba(248,113,113,.6);padding:24px;max-width:420px;width:90%;box-shadow:0 22px 60px rgba(0,0,0,.8);text-align:center;">
-    <h2 style="margin:0 0 8px;font-size:20px;color:#fecaca;">Oops!</h2>
-    <p style="margin:0 0 10px;font-size:14px;color:#fca5a5;">You failed your attempt to bypass the key system.</p>
-    <p style="margin:0 0 18px;font-size:13px;color:#9ca3af;">Please restart from the beginning.</p>
-    <a href="/key?step=0" style="display:inline-block;padding:8px 14px;border-radius:999px;border:1px solid rgba(248,113,113,.8);background:rgba(248,113,113,.12);color:#fecaca;font-size:13px;text-decoration:none;">Restart key system</a>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>${title}</title>
+  <style>
+    :root{
+      --bg:#0b0b0d;
+      --card:#111114;
+      --card2:#0f0f12;
+      --line:rgba(255,255,255,.10);
+      --line2:rgba(255,255,255,.16);
+      --text:#f2f2f2;
+      --muted:rgba(255,255,255,.62);
+      --soft:rgba(255,255,255,.08);
+      --shadow: 0 30px 90px rgba(0,0,0,.55);
+      --radius:18px;
+      --radius2:14px;
+      --btn:#f2f2f2;
+      --btnText:#0b0b0d;
+      --danger:#ff4d4d;
+      --ok:#2cff9a;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(900px 420px at 15% 20%, rgba(255,255,255,.06), transparent 60%),
+        radial-gradient(700px 420px at 85% 75%, rgba(255,255,255,.04), transparent 60%),
+        linear-gradient(180deg, #0b0b0d, #070709);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px 14px;
+    }
+    .frame{
+      width:min(920px, 100%);
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow: var(--shadow);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      overflow:hidden;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 20px;
+      border-bottom:1px solid var(--line);
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      font-weight:700;
+      font-size:13px;
+    }
+    .brand img{
+      width:18px;height:18px;border-radius:6px;
+      object-fit:cover;
+      box-shadow: 0 6px 22px rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.16);
+      background:#000;
+    }
+    .rightmark{
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-size:11px;
+      color:var(--muted);
+    }
+    .content{
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:18px;
+      padding:18px;
+    }
+    @media (max-width:880px){
+      .content{grid-template-columns:1fr}
+    }
+    .main{
+      background: rgba(0,0,0,.18);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding:18px;
+    }
+    .side{
+      background: rgba(0,0,0,.18);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding:18px;
+    }
+    .kicker{
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:10px;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size:44px;
+      letter-spacing:-.02em;
+      line-height:1.05;
+    }
+    h1 span{
+      color:rgba(255,255,255,.78);
+    }
+    .desc{
+      margin:0 0 16px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.55;
+      max-width:62ch;
+    }
+    .steps{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+    }
+    .step{
+      display:flex;
+      gap:12px;
+      padding:12px 12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius: var(--radius2);
+    }
+    .num{
+      width:28px;height:28px;
+      border-radius:10px;
+      border:1px solid var(--line2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:rgba(255,255,255,.86);
+      font-size:12px;
+      font-weight:700;
+      flex:0 0 auto;
+      background: rgba(0,0,0,.30);
+    }
+    .step .txt{
+      color:rgba(255,255,255,.78);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .cta{
+      margin-top:16px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    a.btn, button.btn{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      text-decoration:none;
+      border-radius:16px;
+      padding:14px 16px;
+      font-weight:750;
+      letter-spacing:.02em;
+      font-size:14px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      min-width: 260px;
+      background: var(--btn);
+      color: var(--btnText);
+      box-shadow: 0 18px 50px rgba(0,0,0,.55);
+      transition: transform .12s ease, filter .12s ease;
+    }
+    a.btn:hover, button.btn:hover{ transform: translateY(-1px); filter: brightness(1.03); }
+    .btn .arrow{
+      width:34px;height:34px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      background: rgba(0,0,0,.10);
+    }
+    .btn.secondary{
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line2);
+      box-shadow:none;
+      min-width: 200px;
+    }
+    .progressBox{
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      padding:12px;
+      background: rgba(255,255,255,.03);
+    }
+    .progressTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:8px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .bar{
+      height:10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: rgba(255,255,255,.92);
+      border-radius:999px;
+      transition: width .25s ease;
+    }
+    .meta{
+      margin-top:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .pill{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      font-size:12px;
+      color:rgba(255,255,255,.78);
+    }
+    .pill strong{ color:rgba(255,255,255,.92); font-weight:800; letter-spacing:.06em; }
+    .keyBox{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.03);
+      border-radius: var(--radius);
+      padding:14px;
+      margin-top:14px;
+    }
+    .keyLabel{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      margin-bottom:8px;
+    }
+    .keyValue{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:16px;
+      letter-spacing:.04em;
+      word-break:break-all;
+      color: rgba(255,255,255,.92);
+    }
+    .hint{
+      margin-top:8px;
+      color: rgba(255,255,255,.66);
+      font-size:12px;
+      line-height:1.5;
+    }
+    .bypass{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.03);
+      border-radius: var(--radius);
+      padding:18px;
+    }
+    .bypass h2{
+      margin:0 0 8px;
+      font-size:18px;
+      letter-spacing:.02em;
+    }
+    .bypass p{
+      margin:0 0 14px;
+      color: rgba(255,255,255,.68);
+      font-size:13px;
+      line-height:1.55;
+    }
+    .foot{
+      padding:14px 18px;
+      border-top:1px solid var(--line);
+      color: rgba(255,255,255,.60);
+      font-size:12px;
+      line-height:1.5;
+      background: rgba(0,0,0,.30);
+    }
+    .foot a{
+      color:#ffffff;
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="topbar">
+      <div class="brand">
+        <img src="${BRAND_LOGO_URL}" alt="logo"/>
+        <span>${BRAND_NAME}</span>
+      </div>
+      <div class="rightmark">${BRAND_RIGHT}</div>
+    </div>
+
+    ${inner}
+
+    ${footer ? `
+      <div class="foot">
+        Dont open anything you donwloaded from the workink, just download it and wait.
+        Still no luck? Join our <a href="${DISCORD_URL}" target="_blank" rel="noopener">Discord</a> server and we will try to assist you.
+      </div>
+    ` : ""}
   </div>
-</body></html>`;
+</body>
+</html>`;
 }
 
-function renderStepPage(opts) {
-  const step = opts.step;
-  const title = opts.title;
-  const subtitle = opts.subtitle;
-  const buttonText = opts.buttonText || "";
-  const buttonHref = opts.buttonHref || "#";
-  const showButton = !!buttonText;
-  const showKey = !!opts.showKey;
-  const keyValue = opts.keyValue || "";
-  let pct = 0, label = "Step 0 / 2";
-  if (step === 1) { pct = 50; label = "Step 1 / 2"; }
-  else if (step === 2) { pct = 100; label = "Step 2 / 2"; }
-  return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"/><title>Key system</title></head>
-<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#020617,#0f172a);color:#e5e7eb;font-family:system-ui,sans-serif;">
-  <div style="background:#020617;border-radius:20px;border:1px solid rgba(30,64,175,.7);padding:22px 20px;max-width:460px;width:92%;box-shadow:0 30px 80px rgba(0,0,0,.9);">
-    <div style="font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px;">Key System</div>
-    <div style="margin-bottom:16px;">
-      <div style="font-size:17px;font-weight:700;color:#f9fafb;">${title}</div>
-      <div style="font-size:13px;color:#9ca3af;">${subtitle}</div>
+function renderKeySystem({ step, progressPct, progressLabel, title, subtitle, showButton, buttonHref, buttonText, showKey, keyValue }) {
+  const inner = `
+  <div class="content">
+    <div class="main">
+      <div class="kicker">Get Key</div>
+      <h1>Get <span>Key</span></h1>
+      <p class="desc">// do the workink steps and your key pops up after</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <div class="txt">Hit the button 1 Once you press Get my key it'll take you to workink.</div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <div class="txt">Finish the workink and you get sent back to Vittel key system automatically</div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <div class="txt">Then do all steps (there are 2) to get your key</div>
+        </div>
+      </div>
+
+      <div class="cta">
+        ${showButton ? `
+          <a class="btn" href="${buttonHref}">
+            <span>${buttonText}</span>
+            <span class="arrow">→</span>
+          </a>
+        ` : ``}
+      </div>
+
+      ${showKey ? `
+        <div class="keyBox">
+          <div class="keyLabel">Your key</div>
+          <div class="keyValue">${keyValue}</div>
+          <div class="hint">Copy & paste it into your Roblox UI.</div>
+        </div>
+      ` : ``}
     </div>
-    <div style="margin-bottom:18px;">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:#9ca3af;margin-bottom:6px;"><span>${label}</span><span>${pct}%</span></div>
-      <div style="height:8px;border-radius:999px;background:#0f172a;overflow:hidden;border:1px solid #1e293b;">
-        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#22c55e,#4ade80);transition:width .25s ease;"></div>
+
+    <div class="side">
+      <div class="kicker">Status</div>
+
+      <div class="progressBox">
+        <div class="progressTop">
+          <span>${progressLabel}</span>
+          <span>${progressPct}%</span>
+        </div>
+        <div class="bar"><div style="width:${progressPct}%"></div></div>
+      </div>
+
+      <div class="meta">
+        <div class="pill"><span>Current</span><strong>STEP ${step}</strong></div>
+        <div class="pill"><span>Title</span><strong>${title}</strong></div>
+        <div class="pill"><span>Info</span><strong>${subtitle}</strong></div>
       </div>
     </div>
-    ${showKey ? `<div style="margin-bottom:14px;padding:10px 12px;border-radius:12px;border:1px solid rgba(34,197,94,.7);background:rgba(34,197,94,.08);"><div style="font-size:12px;color:#bbf7d0;">Your key</div><div style="font-size:16px;font-weight:700;color:#bbf7d0;word-break:break-all;">${keyValue}</div><div style="font-size:11px;color:#86efac;margin-top:4px;">Copy and paste in the Roblox UI.</div></div>` : ""}
-    ${showButton ? `<div style="margin-top:8px;"><a href="${buttonHref}" style="display:inline-flex;align-items:center;justify-content:center;padding:9px 16px;border-radius:999px;background:linear-gradient(135deg,#22c55e,#4ade80);color:#020617;font-size:14px;font-weight:600;text-decoration:none;">${buttonText}</a><div style="margin-top:8px;font-size:11px;color:#9ca3af;">Complete the offer, then you will be redirected.</div></div>` : ""}
-  </div>
-</body></html>`;
+  </div>`;
+  return layoutPage({ title: "VITTEL | Key System", inner });
+}
+
+function renderBypass() {
+  const inner = `
+  <div class="content">
+    <div class="main">
+      <div class="bypass">
+        <h2>Access denied</h2>
+        <p>You failed your attempt to bypass the key system. Please restart from the beginning.</p>
+        <div class="cta">
+          <a class="btn" href="/key?step=0">
+            <span>Restart key system</span>
+            <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="kicker">Hint</div>
+      <div class="progressBox">
+        <div class="progressTop"><span>Security</span><span>ON</span></div>
+        <div class="bar"><div style="width:100%"></div></div>
+      </div>
+      <div class="meta">
+        <div class="pill"><span>Status</span><strong>BLOCKED</strong></div>
+        <div class="pill"><span>Reason</span><strong>BYPASS</strong></div>
+        <div class="pill"><span>Fix</span><strong>START STEP 0</strong></div>
+      </div>
+    </div>
+  </div>`;
+  return layoutPage({ title: "VITTEL | Blocked", inner });
 }
 
 function getStrictFingerprint(req) {
@@ -72,7 +451,6 @@ export default async function handler(req, res) {
   const cookies = parseCookies(req);
   const stateCookie = cookies.keyflow;
   const state = stateCookie ? verifyState(stateCookie) : null;
-
   const nonceCookie = (cookies.kfn || "").toString();
 
   let stage = -1;
@@ -97,7 +475,7 @@ export default async function handler(req, res) {
       sameSite: "Lax",
       secure: true,
       maxAge: 3600000,
-      domain: ".sharkx.lol" // ✅ partage www/non-www
+      domain: ".sharkx.lol"
     });
 
     setCookie(res, "keyflow", signState({ stage: 0, nonceHash: nHash }), {
@@ -105,29 +483,33 @@ export default async function handler(req, res) {
       sameSite: "Lax",
       secure: true,
       maxAge: 3600000,
-      domain: ".sharkx.lol" // ✅ partage www/non-www
+      domain: ".sharkx.lol"
     });
 
-    return html(res, 200, renderStepPage({
+    return html(res, 200, renderKeySystem({
       step: 0,
-      title: "Complete Step 1",
-      subtitle: "Finish the first Work.ink step to unlock the next stage.",
-      buttonText: "Start Step 1",
+      progressPct: 0,
+      progressLabel: "Step 0 / 2",
+      title: "START",
+      subtitle: "Press the button to begin Work.ink step 1",
+      showButton: true,
+      buttonText: "Get my key",
       buttonHref: "/key/goto-step1",
-      showKey: false
+      showKey: false,
+      keyValue: ""
     }));
   }
 
   // STEP 1
   if (step === 1) {
     if (wk) {
-      if (stage !== 0) return html(res, 200, renderBypassError());
-      if (!nonceCookie || !nonceHash) return html(res, 200, renderBypassError());
-      if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypassError());
+      if (stage !== 0) return html(res, 200, renderBypass());
+      if (!nonceCookie || !nonceHash) return html(res, 200, renderBypass());
+      if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypass());
 
       const expectedLinkId = process.env.WORKINK_STEP1_LINK_ID || "";
       const v = await verifyWorkinkToken({ token: wk, expectedLinkId, req, deleteToken: true });
-      if (!v.ok) return html(res, 200, renderBypassError());
+      if (!v.ok) return html(res, 200, renderBypass());
 
       const fp = getStrictFingerprint(req);
 
@@ -141,42 +523,47 @@ export default async function handler(req, res) {
         sameSite: "Lax",
         secure: true,
         maxAge: 3600000,
-        domain: ".sharkx.lol" // ✅ partage www/non-www
+        domain: ".sharkx.lol"
       });
 
+      // clean URL
       return redirect(res, 302, "/key?step=1");
     }
 
-    if (stage !== 1) return html(res, 200, renderBypassError());
-    if (!nonceCookie || !nonceHash) return html(res, 200, renderBypassError());
-    if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypassError());
+    if (stage !== 1) return html(res, 200, renderBypass());
+    if (!nonceCookie || !nonceHash) return html(res, 200, renderBypass());
+    if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypass());
 
-    return html(res, 200, renderStepPage({
+    return html(res, 200, renderKeySystem({
       step: 1,
-      title: "Step 1 completed",
-      subtitle: "Now complete Step 2 to obtain your key.",
-      buttonText: "Start Step 2",
+      progressPct: 50,
+      progressLabel: "Step 1 / 2",
+      title: "STEP 1 DONE",
+      subtitle: "Continue to Work.ink step 2",
+      showButton: true,
+      buttonText: "Continue (Step 2)",
       buttonHref: "/key/goto-step2",
-      showKey: false
+      showKey: false,
+      keyValue: ""
     }));
   }
 
   // STEP 2
   if (step === 2) {
-    if (stage !== 1) return html(res, 200, renderBypassError());
-    if (!wk) return html(res, 200, renderBypassError());
+    if (stage !== 1) return html(res, 200, renderBypass());
+    if (!wk) return html(res, 200, renderBypass());
 
-    if (!nonceCookie || !nonceHash) return html(res, 200, renderBypassError());
-    if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypassError());
+    if (!nonceCookie || !nonceHash) return html(res, 200, renderBypass());
+    if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypass());
 
     const fp = getStrictFingerprint(req);
-    if (!boundIpHash || !boundUaHash) return html(res, 200, renderBypassError());
-    if (fp.ipHash !== boundIpHash) return html(res, 200, renderBypassError());
-    if (fp.uaHash !== boundUaHash) return html(res, 200, renderBypassError());
+    if (!boundIpHash || !boundUaHash) return html(res, 200, renderBypass());
+    if (fp.ipHash !== boundIpHash) return html(res, 200, renderBypass());
+    if (fp.uaHash !== boundUaHash) return html(res, 200, renderBypass());
 
     const expectedLinkId = process.env.WORKINK_STEP2_LINK_ID || "";
     const v = await verifyWorkinkToken({ token: wk, expectedLinkId, req, deleteToken: true });
-    if (!v.ok) return html(res, 200, renderBypassError());
+    if (!v.ok) return html(res, 200, renderBypass());
 
     const duration_type = "1d";
     const keyValue = crypto.randomBytes(12).toString("hex");
@@ -184,7 +571,7 @@ export default async function handler(req, res) {
     const { error: ierr } = await sb
       .from("keys")
       .insert([{ key_value: keyValue, duration_type }]);
-    if (ierr) return html(res, 500, renderBypassError());
+    if (ierr) return html(res, 500, renderBypass());
 
     // reset
     setCookie(res, "kfn", "", {
@@ -192,24 +579,32 @@ export default async function handler(req, res) {
       sameSite: "Lax",
       secure: true,
       maxAge: 1,
-      domain: ".sharkx.lol" // ✅
+      domain: ".sharkx.lol"
     });
     setCookie(res, "keyflow", signState({ stage: -1 }), {
       httpOnly: true,
       sameSite: "Lax",
       secure: true,
       maxAge: 3600000,
-      domain: ".sharkx.lol" // ✅
+      domain: ".sharkx.lol"
     });
 
-    return html(res, 200, renderStepPage({
+    return html(res, 200, renderKeySystem({
       step: 2,
-      title: "Key generated",
-      subtitle: "Copy this key and paste it inside the Roblox UI.",
+      progressPct: 100,
+      progressLabel: "Step 2 / 2",
+      title: "DONE",
+      subtitle: "Your key is ready",
+      showButton: false,
+      buttonText: "",
+      buttonHref: "#",
       showKey: true,
       keyValue
     }));
   }
 
-  return html(res, 400, "Invalid step");
+  return html(res, 400, layoutPage({
+    title: "VITTEL | Error",
+    inner: `<div class="content"><div class="main"><div class="bypass"><h2>Invalid step</h2><p>Something went wrong.</p></div></div><div class="side"></div></div>`
+  }));
 }
