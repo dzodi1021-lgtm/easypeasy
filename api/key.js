@@ -14,7 +14,7 @@ function generateOrisKey() {
 }
 
 const BRAND_NAME = "ORIS";
-const BRAND_LOGO_URL = "https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp";
+const BRAND_LOGO_URL = "https://i.postimg.cc/d3BmhqTg/e5201c96-07a3-491f-97c5-99354890190c.png";
 const DISCORD_URL = "https://discord.gg/HNjezqC5Dv";
 
 function layoutPage({ title, inner, footer = true }) {
@@ -490,4 +490,5 @@ export default async function handler(req, res) {
 
   return html(res, 400, "Invalid step");
 }
+
 
