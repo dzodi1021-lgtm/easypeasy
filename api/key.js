@@ -5,7 +5,7 @@ import { verifyWorkinkToken, getClientIp, getUserAgent, sha256Hex } from "../lib
 import { signState, verifyState } from "../lib/state.js";
 
 const BRAND_NAME = "VITTEL";
-const BRAND_RIGHT = "VITTEL | script";
+const BRAND_RIGHT = "THE LOST FRONT";
 const BRAND_LOGO_URL = "https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp";
 const DISCORD_URL = "https://discord.gg/vittel";
 
@@ -20,26 +20,22 @@ function layoutPage({ title, inner, footer = true }) {
     :root{
       --bg:#0b0b0d;
       --card:#111114;
-      --card2:#0f0f12;
       --line:rgba(255,255,255,.10);
       --line2:rgba(255,255,255,.16);
       --text:#f2f2f2;
       --muted:rgba(255,255,255,.62);
-      --soft:rgba(255,255,255,.08);
       --shadow: 0 30px 90px rgba(0,0,0,.55);
       --radius:18px;
       --radius2:14px;
       --btn:#f2f2f2;
       --btnText:#0b0b0d;
-      --danger:#ff4d4d;
-      --ok:#2cff9a;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
       color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       background:
         radial-gradient(900px 420px at 15% 20%, rgba(255,255,255,.06), transparent 60%),
         radial-gradient(700px 420px at 85% 75%, rgba(255,255,255,.04), transparent 60%),
@@ -54,8 +50,7 @@ function layoutPage({ title, inner, footer = true }) {
       border:1px solid var(--line);
       border-radius:22px;
       box-shadow: var(--shadow);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
       overflow:hidden;
     }
     .topbar{
@@ -79,7 +74,6 @@ function layoutPage({ title, inner, footer = true }) {
     .brand img{
       width:18px;height:18px;border-radius:6px;
       object-fit:cover;
-      box-shadow: 0 6px 22px rgba(0,0,0,.45);
       border:1px solid rgba(255,255,255,.16);
       background:#000;
     }
@@ -91,20 +85,14 @@ function layoutPage({ title, inner, footer = true }) {
     }
     .content{
       display:grid;
-      grid-template-columns: 1fr 360px;
+      grid-template-columns: 1fr 340px;
       gap:18px;
       padding:18px;
     }
     @media (max-width:880px){
       .content{grid-template-columns:1fr}
     }
-    .main{
-      background: rgba(0,0,0,.18);
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      padding:18px;
-    }
-    .side{
+    .main,.side{
       background: rgba(0,0,0,.18);
       border:1px solid var(--line);
       border-radius: var(--radius);
@@ -123,9 +111,7 @@ function layoutPage({ title, inner, footer = true }) {
       letter-spacing:-.02em;
       line-height:1.05;
     }
-    h1 span{
-      color:rgba(255,255,255,.78);
-    }
+    h1 span{ color:rgba(255,255,255,.78); }
     .desc{
       margin:0 0 16px;
       color:var(--muted);
@@ -142,7 +128,7 @@ function layoutPage({ title, inner, footer = true }) {
     .step{
       display:flex;
       gap:12px;
-      padding:12px 12px;
+      padding:12px;
       border:1px solid var(--line);
       background: rgba(255,255,255,.03);
       border-radius: var(--radius2);
@@ -157,54 +143,40 @@ function layoutPage({ title, inner, footer = true }) {
       color:rgba(255,255,255,.86);
       font-size:12px;
       font-weight:700;
-      flex:0 0 auto;
       background: rgba(0,0,0,.30);
+      flex:0 0 auto;
     }
     .step .txt{
       color:rgba(255,255,255,.78);
       font-size:13px;
       line-height:1.45;
     }
-    .cta{
-      margin-top:16px;
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-    a.btn, button.btn{
-      appearance:none;
-      border:none;
-      cursor:pointer;
+    .cta{ margin-top:16px; }
+    a.btn{
       text-decoration:none;
       border-radius:16px;
       padding:14px 16px;
-      font-weight:750;
+      font-weight:800;
       letter-spacing:.02em;
       font-size:14px;
       display:inline-flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      min-width: 260px;
+      min-width: 280px;
       background: var(--btn);
       color: var(--btnText);
       box-shadow: 0 18px 50px rgba(0,0,0,.55);
       transition: transform .12s ease, filter .12s ease;
     }
-    a.btn:hover, button.btn:hover{ transform: translateY(-1px); filter: brightness(1.03); }
-    .btn .arrow{
+    a.btn:hover{ transform: translateY(-1px); filter: brightness(1.03); }
+    .arrow{
       width:34px;height:34px;border-radius:12px;
       display:flex;align-items:center;justify-content:center;
       background: rgba(0,0,0,.10);
     }
-    .btn.secondary{
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--line2);
-      box-shadow:none;
-      min-width: 200px;
-    }
+
+    /* Side: ONLY progress + current */
     .progressBox{
       border:1px solid var(--line);
       border-radius: var(--radius2);
@@ -235,13 +207,8 @@ function layoutPage({ title, inner, footer = true }) {
       border-radius:999px;
       transition: width .25s ease;
     }
-    .meta{
-      margin-top:12px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
     .pill{
+      margin-top:12px;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -253,7 +220,8 @@ function layoutPage({ title, inner, footer = true }) {
       font-size:12px;
       color:rgba(255,255,255,.78);
     }
-    .pill strong{ color:rgba(255,255,255,.92); font-weight:800; letter-spacing:.06em; }
+    .pill strong{ color:rgba(255,255,255,.92); font-weight:900; letter-spacing:.08em; }
+
     .keyBox{
       border:1px solid rgba(255,255,255,.16);
       background: rgba(255,255,255,.03);
@@ -281,23 +249,16 @@ function layoutPage({ title, inner, footer = true }) {
       font-size:12px;
       line-height:1.5;
     }
+
     .bypass{
       border:1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.03);
       border-radius: var(--radius);
       padding:18px;
     }
-    .bypass h2{
-      margin:0 0 8px;
-      font-size:18px;
-      letter-spacing:.02em;
-    }
-    .bypass p{
-      margin:0 0 14px;
-      color: rgba(255,255,255,.68);
-      font-size:13px;
-      line-height:1.55;
-    }
+    .bypass h2{ margin:0 0 8px; font-size:18px; }
+    .bypass p{ margin:0 0 14px; color: rgba(255,255,255,.68); font-size:13px; line-height:1.55; }
+
     .foot{
       padding:14px 18px;
       border-top:1px solid var(--line);
@@ -327,7 +288,7 @@ function layoutPage({ title, inner, footer = true }) {
 
     ${footer ? `
       <div class="foot">
-        Dont open anything you downloaded from the workink, just only download it and wait.
+        Dont open anything you donwloaded from the workink, just download it and wait.
         Still no luck? Join our <a href="${DISCORD_URL}" target="_blank" rel="noopener">Discord</a> server and we will try to assist you.
       </div>
     ` : ""}
@@ -336,7 +297,7 @@ function layoutPage({ title, inner, footer = true }) {
 </html>`;
 }
 
-function renderKeySystem({ step, progressPct, progressLabel, title, subtitle, showButton, buttonHref, buttonText, showKey, keyValue }) {
+function renderKeySystem({ step, progressPct, progressLabel, showButton, buttonHref, buttonText, showKey, keyValue }) {
   const inner = `
   <div class="content">
     <div class="main">
@@ -359,14 +320,14 @@ function renderKeySystem({ step, progressPct, progressLabel, title, subtitle, sh
         </div>
       </div>
 
-      <div class="cta">
-        ${showButton ? `
+      ${showButton ? `
+        <div class="cta">
           <a class="btn" href="${buttonHref}">
             <span>${buttonText}</span>
             <span class="arrow">→</span>
           </a>
-        ` : ``}
-      </div>
+        </div>
+      ` : ``}
 
       ${showKey ? `
         <div class="keyBox">
@@ -388,11 +349,7 @@ function renderKeySystem({ step, progressPct, progressLabel, title, subtitle, sh
         <div class="bar"><div style="width:${progressPct}%"></div></div>
       </div>
 
-      <div class="meta">
-        <div class="pill"><span>Current</span><strong>STEP ${step}</strong></div>
-        <div class="pill"><span>Title</span><strong>${title}</strong></div>
-        <div class="pill"><span>Info</span><strong>${subtitle}</strong></div>
-      </div>
+      <div class="pill"><span>Current</span><strong>STEP ${step}</strong></div>
     </div>
   </div>`;
   return layoutPage({ title: "VITTEL | Key System", inner });
@@ -414,16 +371,12 @@ function renderBypass() {
       </div>
     </div>
     <div class="side">
-      <div class="kicker">Hint</div>
+      <div class="kicker">Security</div>
       <div class="progressBox">
-        <div class="progressTop"><span>Security</span><span>ON</span></div>
+        <div class="progressTop"><span>Protection</span><span>ON</span></div>
         <div class="bar"><div style="width:100%"></div></div>
       </div>
-      <div class="meta">
-        <div class="pill"><span>Status</span><strong>BLOCKED</strong></div>
-        <div class="pill"><span>Reason</span><strong>BYPASS</strong></div>
-        <div class="pill"><span>Fix</span><strong>START STEP 0</strong></div>
-      </div>
+      <div class="pill"><span>Status</span><strong>BLOCKED</strong></div>
     </div>
   </div>`;
   return layoutPage({ title: "VITTEL | Blocked", inner });
@@ -490,7 +443,6 @@ export default async function handler(req, res) {
       step: 0,
       progressPct: 0,
       progressLabel: "Step 0 / 2",
-      subtitle: "Press the button to begin Work.ink step 1",
       showButton: true,
       buttonText: "Get my key",
       buttonHref: "/key/goto-step1",
@@ -525,7 +477,6 @@ export default async function handler(req, res) {
         domain: ".sharkx.lol"
       });
 
-      // clean URL
       return redirect(res, 302, "/key?step=1");
     }
 
@@ -537,8 +488,6 @@ export default async function handler(req, res) {
       step: 1,
       progressPct: 50,
       progressLabel: "Step 1 / 2",
-      title: "STEP 1 DONE",
-      subtitle: "Continue to Work.ink step 2",
       showButton: true,
       buttonText: "Continue (Step 2)",
       buttonHref: "/key/goto-step2",
@@ -572,7 +521,6 @@ export default async function handler(req, res) {
       .insert([{ key_value: keyValue, duration_type }]);
     if (ierr) return html(res, 500, renderBypass());
 
-    // reset
     setCookie(res, "kfn", "", {
       httpOnly: true,
       sameSite: "Lax",
@@ -592,8 +540,6 @@ export default async function handler(req, res) {
       step: 2,
       progressPct: 100,
       progressLabel: "Step 2 / 2",
-      title: "DONE",
-      subtitle: "Your key is ready",
       showButton: false,
       buttonText: "",
       buttonHref: "#",
@@ -607,4 +553,3 @@ export default async function handler(req, res) {
     inner: `<div class="content"><div class="main"><div class="bypass"><h2>Invalid step</h2><p>Something went wrong.</p></div></div><div class="side"></div></div>`
   }));
 }
-
