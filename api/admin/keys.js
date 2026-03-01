@@ -29,7 +29,6 @@ async function requireAdmin(req, res) {
     return null;
   }
 
-  // Invalidation auto si tu changes ADMIN_USERNAME/PASSWORD
   const curSig = credentialsSignature();
   if (data[0].cred_sig && data[0].cred_sig !== curSig) {
     json(res, 401, { ok: false, message: "Session expired" });
@@ -39,8 +38,16 @@ async function requireAdmin(req, res) {
   return sb;
 }
 
-function randomKey24() {
-  return crypto.randomBytes(12).toString("hex");
+function randomBlock4() {
+  // A-Z0-9
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let out = "";
+  for (let i = 0; i < 4; i++) out += chars[crypto.randomInt(0, chars.length)];
+  return out;
+}
+
+function generateVittelKey() {
+  return `VITTEL-${randomBlock4()}-${randomBlock4()}-${randomBlock4()}`;
 }
 
 export default async function handler(req, res) {
@@ -60,7 +67,23 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const body = await readJson(req);
     const duration_type = body?.duration_type || "1d";
-    const key_value = randomKey24();
+
+    // générer une clé unique
+    let key_value = "";
+    for (let tries = 0; tries < 8; tries++) {
+      key_value = generateVittelKey();
+      const { data: exists, error: e2 } = await sb
+        .from("keys")
+        .select("id")
+        .eq("key_value", key_value)
+        .limit(1);
+
+      if (e2) return json(res, 500, { ok: false, message: "DB error" });
+      if (!exists || exists.length === 0) break; // unique ok
+      key_value = "";
+    }
+
+    if (!key_value) return json(res, 500, { ok: false, message: "Failed to generate unique key" });
 
     const { data, error } = await sb
       .from("keys")
