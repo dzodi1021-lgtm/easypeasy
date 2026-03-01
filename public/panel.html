@@ -9,7 +9,7 @@
       --bg:#070709;
       --bg2:#0b0b0d;
       --line:rgba(255,255,255,.10);
-      --line2:rgba(255,255,255,.16);
+      --line2:rgba(255,255,255,.18);
       --text:#f3f3f3;
       --muted:rgba(255,255,255,.62);
       --btn:#f2f2f2;
@@ -22,6 +22,15 @@
       --r18:18px;
       --r16:16px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      /* Table contrast */
+      --tableBg: rgba(0,0,0,.38);
+      --theadBg: rgba(0,0,0,.78);
+      --rowAlt: rgba(255,255,255,.03);
+      --rowHover: rgba(255,255,255,.06);
+      --cell: rgba(255,255,255,.86);
+      --cellSoft: rgba(255,255,255,.70);
+      --head: rgba(255,255,255,.70);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -36,7 +45,6 @@
       overflow-x:hidden;
     }
 
-    /* Shared */
     .btn{
       appearance:none;
       border:none;
@@ -167,11 +175,9 @@
       gap:8px;
       white-space:nowrap;
     }
-    .loginBody{
-      padding:18px;
-    }
+    .loginBody{ padding:18px; }
 
-    /* DASHBOARD VIEW (only after login) */
+    /* DASHBOARD VIEW */
     .dash{
       display:none;
       width:min(1480px, 100%);
@@ -210,9 +216,7 @@
       margin-top:14px;
       align-items:start;
     }
-    @media (max-width:1100px){
-      .grid{ grid-template-columns: 1fr; }
-    }
+    @media (max-width:1100px){ .grid{ grid-template-columns: 1fr; } }
 
     .card{
       border:1px solid var(--line);
@@ -254,8 +258,8 @@
     }
     @media (max-width:520px){ .stats{ grid-template-columns:1fr; } }
     .stat{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
       border-radius: var(--r16);
       padding:12px 12px;
     }
@@ -263,19 +267,19 @@
       font-size:11px;
       letter-spacing:.14em;
       text-transform:uppercase;
-      color: rgba(255,255,255,.60);
+      color: rgba(255,255,255,.65);
       margin-bottom:6px;
     }
     .stat .value{
       font-size:22px;
       font-weight:950;
       letter-spacing:-.02em;
-      color: rgba(255,255,255,.92);
+      color: rgba(255,255,255,.95);
     }
     .stat .hint{
       margin-top:4px;
       font-size:12px;
-      color: rgba(255,255,255,.52);
+      color: rgba(255,255,255,.58);
     }
 
     .tableTools{
@@ -301,8 +305,9 @@
       font-size:14px;
     }
 
+    /* ✅ TABLE FIX */
     .tableWrap{
-      background: rgba(255,255,255,.02);
+      background: var(--tableBg);
       overflow:auto;
       max-height: 720px;
     }
@@ -310,17 +315,17 @@
       width:100%;
       border-collapse:collapse;
       font-size:13px;
-      min-width: 980px;
+      min-width: 1020px;
     }
     thead{
       position:sticky; top:0; z-index:2;
-      background: rgba(0,0,0,.65);
+      background: var(--theadBg);
       backdrop-filter: blur(10px);
-      border-bottom:1px solid rgba(255,255,255,.08);
+      border-bottom:1px solid rgba(255,255,255,.12);
     }
     th, td{
       padding:14px 12px;
-      border-bottom:1px solid rgba(255,255,255,.08);
+      border-bottom:1px solid rgba(255,255,255,.10);
       text-align:left;
       white-space:nowrap;
       vertical-align:middle;
@@ -329,9 +334,11 @@
       font-size:11px;
       letter-spacing:.14em;
       text-transform:uppercase;
-      color:rgba(255,255,255,.60);
+      color: var(--head);
     }
-    tbody tr:hover{ background: rgba(255,255,255,.03); }
+    td{ color: var(--cell); }
+    tbody tr:nth-child(even){ background: var(--rowAlt); }
+    tbody tr:hover{ background: var(--rowHover); }
 
     .keyPill{
       display:inline-flex;
@@ -339,8 +346,8 @@
       gap:10px;
       padding:8px 12px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.05);
       font-family: var(--mono);
       letter-spacing:.02em;
       max-width: 560px;
@@ -351,6 +358,7 @@
       max-width: 420px;
       display:inline-block;
       vertical-align:bottom;
+      color: rgba(255,255,255,.92);
     }
     .tinyBtn{
       border:none; cursor:pointer;
@@ -360,14 +368,14 @@
       font-weight:950;
       letter-spacing:.10em;
       text-transform:uppercase;
-      background: rgba(255,255,255,.12);
-      color:rgba(255,255,255,.92);
+      background: rgba(255,255,255,.14);
+      color:rgba(255,255,255,.96);
     }
     .tinyBtn:hover{ filter: brightness(1.08); }
     .tinyBtn.danger{
-      background: rgba(255,77,77,.14);
-      color: rgba(255,77,77,.95);
-      border: 1px solid rgba(255,77,77,.22);
+      background: rgba(255,77,77,.18);
+      color: rgba(255,77,77,.98);
+      border: 1px solid rgba(255,77,77,.26);
     }
 
     .badgeStatus{
@@ -376,26 +384,26 @@
       font-size:11px;
       letter-spacing:.12em;
       text-transform:uppercase;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.05);
       display:inline-flex;
       align-items:center;
       gap:8px;
+      color: rgba(255,255,255,.90);
     }
     .badgeStatus .bDot{
       width:8px;height:8px;border-radius:999px;background: rgba(255,255,255,.55);
       box-shadow:0 0 0 3px rgba(255,255,255,.08);
     }
-    .st-active{ color: rgba(44,255,154,.92); border-color: rgba(44,255,154,.22); background: rgba(44,255,154,.08); }
+    .st-active{ color: rgba(44,255,154,.95); border-color: rgba(44,255,154,.24); background: rgba(44,255,154,.10); }
     .st-active .bDot{ background: rgba(44,255,154,.95); box-shadow:0 0 0 3px rgba(44,255,154,.10); }
-    .st-expired{ color: rgba(255,77,77,.92); border-color: rgba(255,77,77,.22); background: rgba(255,77,77,.08); }
+    .st-expired{ color: rgba(255,77,77,.95); border-color: rgba(255,77,77,.24); background: rgba(255,77,77,.10); }
     .st-expired .bDot{ background: rgba(255,77,77,.95); box-shadow:0 0 0 3px rgba(255,77,77,.10); }
-    .st-unused{ color: rgba(255,255,255,.82); }
+    .st-unused{ color: rgba(255,255,255,.90); }
 
-    .mutedCell{ color: rgba(255,255,255,.66); }
-    .smallCell{ color: rgba(255,255,255,.52); font-size:12px; }
+    .mutedCell{ color: var(--cellSoft); }
+    .smallCell{ color: rgba(255,255,255,.62); font-size:12px; }
 
-    /* Toast */
     .toast{
       position:fixed;
       left:50%;
@@ -405,7 +413,7 @@
       border-radius:999px;
       border:1px solid rgba(255,255,255,.14);
       background: rgba(0,0,0,.70);
-      color: rgba(255,255,255,.86);
+      color: rgba(255,255,255,.90);
       font-size:12px;
       letter-spacing:.02em;
       display:none;
@@ -468,7 +476,7 @@
     }
     .dangerBox{
       border:1px solid rgba(255,77,77,.22);
-      background: rgba(255,77,77,.08);
+      background: rgba(255,77,77,.10);
       border-radius: var(--r16);
       padding:12px;
     }
@@ -493,7 +501,7 @@
     .btnDanger:hover{ filter: brightness(1.02); }
     .btnCancel{
       background: transparent;
-      border: 1px solid rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.18);
       color: rgba(255,255,255,.92);
       box-shadow:none;
     }
@@ -501,7 +509,6 @@
 </head>
 <body>
 
-  <!-- LOGIN ONLY (default) -->
   <div class="loginPage" id="loginOnly">
     <div class="loginFrame">
       <div class="loginTop">
@@ -535,7 +542,6 @@
     </div>
   </div>
 
-  <!-- DASHBOARD (NOT rendered visually until logged) -->
   <div class="dash" id="dash">
     <div class="topbar">
       <div class="brand">
@@ -547,14 +553,13 @@
       </div>
 
       <div class="topActions">
-        <div class="pill" id="livePill"><span class="dot" id="liveDot"></span><span id="liveTxt">LIVE</span></div>
+        <div class="pill"><span class="dot" id="liveDot"></span><span id="liveTxt">LIVE</span></div>
         <div class="pill" id="keysCount">0 KEYS</div>
         <button class="btn btnGhost" id="refreshBtn">Refresh</button>
       </div>
     </div>
 
     <div class="grid">
-      <!-- Create (left) -->
       <div class="card">
         <div class="cardHead">
           <div class="cardTitle"><b>Create</b> key</div>
@@ -609,7 +614,6 @@
         </div>
       </div>
 
-      <!-- Table (right) -->
       <div class="card">
         <div class="cardHead">
           <div class="cardTitle"><b>Database</b> keys</div>
@@ -644,10 +648,8 @@
     </div>
   </div>
 
-  <!-- Toast -->
   <div class="toast" id="toast"></div>
 
-  <!-- Modal -->
   <div class="modalOverlay" id="modalOverlay" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modalHead">
@@ -669,7 +671,6 @@
 
   <script>
   (function(){
-    // Login-only view
     const loginOnly = document.getElementById("loginOnly");
     const dash = document.getElementById("dash");
     const loginUser = document.getElementById("loginUser");
@@ -677,7 +678,6 @@
     const loginBtn = document.getElementById("loginBtn");
     const loginMsg = document.getElementById("loginMsg");
 
-    // Dashboard elements (exist but hidden until login)
     const keysBody = document.getElementById("keysBody");
     const keysCount = document.getElementById("keysCount");
     const toast = document.getElementById("toast");
@@ -698,7 +698,6 @@
     const liveDot = document.getElementById("liveDot");
     const liveTxt = document.getElementById("liveTxt");
 
-    // Modal
     const modalOverlay = document.getElementById("modalOverlay");
     const modalClose = document.getElementById("modalClose");
     const modalCancel = document.getElementById("modalCancel");
@@ -706,10 +705,9 @@
     const modalKey = document.getElementById("modalKey");
     const modalText = document.getElementById("modalText");
 
-    // State
     let refreshTimer = null;
     let allKeys = [];
-    let pendingDelete = null; // {id, key_value}
+    let pendingDelete = null;
     let lastGenerated = "";
 
     function showToast(text){
@@ -976,34 +974,25 @@
       }
     }
 
-    // Events
     loginBtn.addEventListener("click", login);
     loginPass.addEventListener("keydown", e => { if(e.key === "Enter") login(); });
     loginUser.addEventListener("keydown", e => { if(e.key === "Enter") login(); });
 
-    if (createBtn) createBtn.addEventListener("click", createKey);
-    if (refreshBtn) refreshBtn.addEventListener("click", () => loadKeys(false));
-    if (copyLastBtn) copyLastBtn.addEventListener("click", () => {
+    createBtn.addEventListener("click", createKey);
+    refreshBtn.addEventListener("click", () => loadKeys(false));
+    copyLastBtn.addEventListener("click", () => {
       const val = lastGenerated || lastKeyEl.value || "";
       if(!val) return showToast("No key to copy");
       copyText(val);
     });
 
-    if (searchInput) searchInput.addEventListener("input", () => {
-      renderTable(filterKeys());
-    });
+    searchInput.addEventListener("input", () => renderTable(filterKeys()));
 
-    if (keysBody) keysBody.addEventListener("click", (e) => {
+    keysBody.addEventListener("click", (e) => {
       const copyBtn = e.target.closest("button[data-copy]");
-      if(copyBtn){
-        copyText(copyBtn.dataset.copy);
-        return;
-      }
+      if(copyBtn){ copyText(copyBtn.dataset.copy); return; }
       const delBtn = e.target.closest("button[data-del]");
-      if(delBtn){
-        openDeleteModal(delBtn.dataset.del, delBtn.dataset.delkey);
-        return;
-      }
+      if(delBtn){ openDeleteModal(delBtn.dataset.del, delBtn.dataset.delkey); return; }
     });
 
     modalClose.addEventListener("click", closeDeleteModal);
@@ -1015,7 +1004,6 @@
       if(e.key === "Escape" && modalOverlay.style.display === "flex") closeDeleteModal();
     });
 
-    // Boot: detect if already logged (without revealing dashboard)
     (async function boot(){
       const { res } = await api("/api/admin/keys");
       if(res.ok){
