@@ -30,7 +30,7 @@ function layoutPage({ title, inner, footer = true }) {
     :root{
       --bg:#0b0b0d;
       --line:rgba(255,255,255,.10);
-      --line2:rgba(255,255,255,.18);
+      --line2:rgba(255,255,255,.16);
       --text:#f2f2f2;
       --muted:rgba(255,255,255,.62);
       --shadow: 0 30px 90px rgba(0,0,0,.55);
@@ -77,7 +77,7 @@ function layoutPage({ title, inner, footer = true }) {
       gap:10px;
       letter-spacing:.16em;
       text-transform:uppercase;
-      font-weight:800;
+      font-weight:700;
       font-size:13px;
     }
     .brand img{
@@ -151,7 +151,7 @@ function layoutPage({ title, inner, footer = true }) {
       justify-content:center;
       color:rgba(255,255,255,.86);
       font-size:12px;
-      font-weight:800;
+      font-weight:700;
       background: rgba(0,0,0,.30);
       flex:0 0 auto;
     }
@@ -165,7 +165,7 @@ function layoutPage({ title, inner, footer = true }) {
       text-decoration:none;
       border-radius:16px;
       padding:14px 16px;
-      font-weight:900;
+      font-weight:800;
       letter-spacing:.02em;
       font-size:14px;
       display:inline-flex;
@@ -185,11 +185,10 @@ function layoutPage({ title, inner, footer = true }) {
       background: rgba(0,0,0,.10);
     }
 
-    /* Side: only Status */
     .progressBox{
       border:1px solid var(--line);
       border-radius: var(--radius2);
-      padding:14px;
+      padding:12px;
       background: rgba(255,255,255,.03);
     }
     .progressTop{
@@ -198,16 +197,16 @@ function layoutPage({ title, inner, footer = true }) {
       align-items:center;
       font-size:12px;
       color:var(--muted);
-      margin-bottom:10px;
-      letter-spacing:.10em;
+      margin-bottom:8px;
+      letter-spacing:.08em;
       text-transform:uppercase;
     }
     .bar{
       height:10px;
       border-radius:999px;
-      background: rgba(255,255,255,.10);
+      background: rgba(255,255,255,.08);
       overflow:hidden;
-      border:1px solid rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.10);
     }
     .bar > div{
       height:100%;
@@ -216,6 +215,20 @@ function layoutPage({ title, inner, footer = true }) {
       border-radius:999px;
       transition: width .25s ease;
     }
+    .pill{
+      margin-top:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      font-size:12px;
+      color:rgba(255,255,255,.78);
+    }
+    .pill strong{ color:rgba(255,255,255,.92); font-weight:900; letter-spacing:.08em; }
 
     .keyBox{
       border:1px solid rgba(255,255,255,.16);
@@ -335,6 +348,7 @@ function renderKeySystem({ step, progressPct, progressLabel, showButton, buttonH
 
     <div class="side">
       <div class="kicker">Status</div>
+
       <div class="progressBox">
         <div class="progressTop">
           <span>${progressLabel}</span>
@@ -342,6 +356,8 @@ function renderKeySystem({ step, progressPct, progressLabel, showButton, buttonH
         </div>
         <div class="bar"><div style="width:${progressPct}%"></div></div>
       </div>
+
+      <div class="pill"><span>Current</span><strong>STEP ${step}</strong></div>
     </div>
   </div>`;
   return layoutPage({ title: "VITTEL | Key System", inner });
@@ -368,6 +384,7 @@ function renderBypass() {
         <div class="progressTop"><span>Protection</span><span>ON</span></div>
         <div class="bar"><div style="width:100%"></div></div>
       </div>
+      <div class="pill"><span>Status</span><strong>BLOCKED</strong></div>
     </div>
   </div>`;
   return layoutPage({ title: "VITTEL | Blocked", inner });
@@ -376,7 +393,10 @@ function renderBypass() {
 function getStrictFingerprint(req) {
   const ip = getClientIp(req);
   const ua = getUserAgent(req);
-  return { ipHash: sha256Hex(ip), uaHash: sha256Hex(ua) };
+  return {
+    ipHash: sha256Hex(ip),
+    uaHash: sha256Hex(ua),
+  };
 }
 
 export default async function handler(req, res) {
@@ -500,6 +520,7 @@ export default async function handler(req, res) {
 
     const duration_type = "1d";
 
+    // ✅ NEW FORMAT
     let keyValue = "";
     for (let tries = 0; tries < 8; tries++) {
       keyValue = generateVittelKey();
@@ -514,7 +535,9 @@ export default async function handler(req, res) {
     }
     if (!keyValue) return html(res, 500, renderBypass());
 
-    const { error: ierr } = await sb.from("keys").insert([{ key_value: keyValue, duration_type }]);
+    const { error: ierr } = await sb
+      .from("keys")
+      .insert([{ key_value: keyValue, duration_type }]);
     if (ierr) return html(res, 500, renderBypass());
 
     setCookie(res, "kfn", "", {
