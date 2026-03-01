@@ -46,8 +46,8 @@ function randomBlock4() {
   return out;
 }
 
-function generateVittelKey() {
-  return `VITTEL-${randomBlock4()}-${randomBlock4()}-${randomBlock4()}`;
+function generateOrisKey() {
+  return `ORIS-${randomBlock4()}-${randomBlock4()}-${randomBlock4()}`;
 }
 
 export default async function handler(req, res) {
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
     // générer une clé unique
     let key_value = "";
     for (let tries = 0; tries < 8; tries++) {
-      key_value = generateVittelKey();
+      key_value = generateOrisKey();
       const { data: exists, error: e2 } = await sb
         .from("keys")
         .select("id")
@@ -97,3 +97,4 @@ export default async function handler(req, res) {
 
   return json(res, 405, { ok: false, message: "Method not allowed" });
 }
+
