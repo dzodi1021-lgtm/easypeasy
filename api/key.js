@@ -5,7 +5,7 @@ import { verifyWorkinkToken, getClientIp, getUserAgent, sha256Hex } from "../lib
 import { signState, verifyState } from "../lib/state.js";
 
 const BRAND_NAME = "VITTEL";
-const BRAND_RIGHT = "THE LOST FRONT";
+const BRAND_RIGHT = "VITTEL | script";
 const BRAND_LOGO_URL = "https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp";
 const DISCORD_URL = "https://discord.gg/vittel";
 
@@ -327,7 +327,7 @@ function layoutPage({ title, inner, footer = true }) {
 
     ${footer ? `
       <div class="foot">
-        Dont open anything you donwloaded from the workink, just download it and wait.
+        Dont open anything you downloaded from the workink, just only download it and wait.
         Still no luck? Join our <a href="${DISCORD_URL}" target="_blank" rel="noopener">Discord</a> server and we will try to assist you.
       </div>
     ` : ""}
@@ -490,7 +490,6 @@ export default async function handler(req, res) {
       step: 0,
       progressPct: 0,
       progressLabel: "Step 0 / 2",
-      title: "START",
       subtitle: "Press the button to begin Work.ink step 1",
       showButton: true,
       buttonText: "Get my key",
@@ -608,3 +607,4 @@ export default async function handler(req, res) {
     inner: `<div class="content"><div class="main"><div class="bypass"><h2>Invalid step</h2><p>Something went wrong.</p></div></div><div class="side"></div></div>`
   }));
 }
+
