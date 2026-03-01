@@ -9,13 +9,13 @@ function randomBlock4() {
   for (let i = 0; i < 4; i++) out += chars[crypto.randomInt(0, chars.length)];
   return out;
 }
-function generateVittelKey() {
-  return `VITTEL-${randomBlock4()}-${randomBlock4()}-${randomBlock4()}`;
+function generateOrisKey() {
+  return `ORIS-${randomBlock4()}-${randomBlock4()}-${randomBlock4()}`;
 }
 
-const BRAND_NAME = "VITTEL";
+const BRAND_NAME = "ORIS";
 const BRAND_LOGO_URL = "https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp";
-const DISCORD_URL = "https://discord.gg/vittel";
+const DISCORD_URL = "https://discord.gg/HNjezqC5Dv";
 
 function layoutPage({ title, inner, footer = true }) {
   return `<!doctype html>
@@ -264,7 +264,7 @@ function renderKeySystem({ step, progressPct, progressLabel, title, subtitle, sh
     <p class="desc">${subtitle}</p>
     <div class="steps">
       <div class="step"><div class="num">1</div><div class="txt">Hit the button 1 Once you press Get my key it'll take you to workink.</div></div>
-      <div class="step"><div class="num">2</div><div class="txt">Finish the workink and you get sent back to Vittel key system automatically</div></div>
+      <div class="step"><div class="num">2</div><div class="txt">Finish the workink and you get sent back to Oris key system automatically</div></div>
       <div class="step"><div class="num">3</div><div class="txt">Then do all steps (there are 2) to get your key</div></div>
     </div>
   ` : `
@@ -308,7 +308,7 @@ function renderKeySystem({ step, progressPct, progressLabel, title, subtitle, sh
     </div>
   </div>`;
 
-  return layoutPage({ title: "VITTEL | Key System", inner });
+  return layoutPage({ title: "Oris | Key System", inner });
 }
 
 function renderBypass() {
@@ -331,7 +331,7 @@ function renderBypass() {
       </div>
     </div>
   </div>`;
-  return layoutPage({ title: "VITTEL | Blocked", inner });
+  return layoutPage({ title: "Oris | Blocked", inner });
 }
 
 export default async function handler(req, res) {
@@ -445,7 +445,7 @@ export default async function handler(req, res) {
 
     let keyValue = "";
     for (let tries = 0; tries < 8; tries++) {
-      keyValue = generateVittelKey();
+      keyValue = generateOrisKey();
       const { data: exists, error: e2 } = await sb
         .from("keys")
         .select("id")
@@ -490,3 +490,4 @@ export default async function handler(req, res) {
 
   return html(res, 400, "Invalid step");
 }
+
