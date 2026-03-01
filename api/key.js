@@ -357,7 +357,6 @@ function renderKeySystem({ step, progressPct, progressLabel, showButton, buttonH
         <div class="bar"><div style="width:${progressPct}%"></div></div>
       </div>
 
-      <div class="pill"><span>Current</span><strong>STEP ${step}</strong></div>
     </div>
   </div>`;
   return layoutPage({ title: "VITTEL | Key System", inner });
@@ -572,3 +571,4 @@ export default async function handler(req, res) {
     inner: `<div class="content"><div class="main"><div class="bypass"><h2>Invalid step</h2><p>Something went wrong.</p></div></div><div class="side"></div></div>`
   }));
 }
+
