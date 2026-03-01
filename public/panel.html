@@ -8,26 +8,21 @@
     :root{
       --bg:#070709;
       --bg2:#0b0b0d;
-      --card:rgba(255,255,255,.04);
-      --card2:rgba(255,255,255,.06);
       --line:rgba(255,255,255,.10);
       --line2:rgba(255,255,255,.16);
       --text:#f3f3f3;
       --muted:rgba(255,255,255,.62);
-      --muted2:rgba(255,255,255,.48);
       --btn:#f2f2f2;
       --btnText:#0b0b0d;
       --danger:#ff4d4d;
       --ok:#2cff9a;
-      --warn:#ffd24d;
       --shadow: 0 30px 90px rgba(0,0,0,.60);
       --shadow2: 0 18px 60px rgba(0,0,0,.50);
-      --r20:22px;
+      --r22:22px;
+      --r18:18px;
       --r16:16px;
-      --r14:14px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -41,100 +36,26 @@
       overflow-x:hidden;
     }
 
-    /* Layout */
-    .page{
-      width:min(1480px, 100%);
-      margin:0 auto;
-      padding:26px 16px 46px;
-    }
-
-    /* Top header */
-    .topbar{
-      border:1px solid var(--line);
-      border-radius: var(--r20);
-      background: rgba(0,0,0,.32);
-      backdrop-filter: blur(10px);
-      box-shadow: var(--shadow);
-      padding:18px 18px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-    .brand img{
-      width:28px;height:28px;border-radius:10px;object-fit:cover;
-      border:1px solid rgba(255,255,255,.16);
-      box-shadow: 0 10px 30px rgba(0,0,0,.45);
-      background:#000;
-    }
-    .brandTitle{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
-    .brandTitle .name{
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      font-weight:900;
-      font-size:13px;
-      line-height:1.2;
-    }
-    .brandTitle .sub{
-      color:var(--muted);
-      font-size:12px;
-      letter-spacing:.04em;
-    }
-
-    .topActions{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .pill{
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      border-radius:999px;
-      padding:8px 12px;
-      font-size:11px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      color:rgba(255,255,255,.80);
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-    }
-    .dot{
-      width:8px;height:8px;border-radius:999px;background: rgba(44,255,154,.95);
-      box-shadow: 0 0 0 3px rgba(44,255,154,.12);
-    }
-    .dot.off{ background: rgba(255,77,77,.95); box-shadow:0 0 0 3px rgba(255,77,77,.12);}
-
+    /* Shared */
     .btn{
       appearance:none;
       border:none;
       cursor:pointer;
-      border-radius: 999px;
-      padding:10px 14px;
+      border-radius: 16px;
+      padding:14px 16px;
       font-weight:900;
-      letter-spacing:.06em;
+      letter-spacing:.08em;
       text-transform:uppercase;
-      font-size:11px;
+      font-size:12px;
       display:inline-flex;
       align-items:center;
-      gap:10px;
+      justify-content:space-between;
+      gap:12px;
       background: var(--btn);
       color: var(--btnText);
       transition: transform .12s ease, filter .12s ease;
       box-shadow: var(--shadow2);
+      width:100%;
     }
     .btn:hover{ transform: translateY(-1px); filter: brightness(1.03); }
     .btnGhost{
@@ -142,51 +63,11 @@
       color: rgba(255,255,255,.90);
       border: 1px solid var(--line2);
       box-shadow:none;
+      border-radius:999px;
+      padding:10px 14px;
+      width:auto;
     }
 
-    /* Main grid */
-    .grid{
-      display:grid;
-      grid-template-columns: 420px 1fr;
-      gap:14px;
-      margin-top:14px;
-      align-items:start;
-    }
-    @media (max-width:1100px){
-      .grid{ grid-template-columns: 1fr; }
-    }
-
-    /* Cards */
-    .card{
-      border:1px solid var(--line);
-      border-radius: var(--r20);
-      background: rgba(0,0,0,.28);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .cardHead{
-      padding:14px 16px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      background: rgba(255,255,255,.03);
-    }
-    .cardTitle{
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      font-size:12px;
-      color:var(--muted);
-      display:flex;
-      align-items:center;
-      gap:10px;
-      white-space:nowrap;
-    }
-    .cardTitle b{ color: rgba(255,255,255,.92); }
-    .cardBody{ padding:14px 16px; }
-
-    /* Fields */
     label{
       display:block;
       font-size:11px;
@@ -209,25 +90,6 @@
       border-color: rgba(255,255,255,.28);
       box-shadow: 0 0 0 3px rgba(255,255,255,.06);
     }
-
-    .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-    @media (max-width:520px){ .row2{ grid-template-columns:1fr; } }
-
-    .bigBtn{
-      border-radius: var(--r16);
-      width:100%;
-      justify-content:space-between;
-      padding:14px 16px;
-      font-size:12px;
-      letter-spacing:.08em;
-    }
-    .bigBtn span.icon{
-      width:34px;height:34px;border-radius:12px;
-      display:flex;align-items:center;justify-content:center;
-      background: rgba(0,0,0,.10);
-      font-size:16px;
-    }
-
     .msg{
       margin-top:10px;
       font-size:12px;
@@ -237,7 +99,153 @@
     .msg.ok{ color: rgba(44,255,154,.85); }
     .msg.err{ color: rgba(255,77,77,.85); }
 
-    /* Stats */
+    /* LOGIN ONLY VIEW */
+    .loginPage{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:26px 14px;
+    }
+    .loginFrame{
+      width:min(560px, 100%);
+      border:1px solid var(--line);
+      border-radius: var(--r22);
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .loginTop{
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background: rgba(255,255,255,.03);
+      gap:12px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .brand img{
+      width:28px;height:28px;border-radius:10px;object-fit:cover;
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: 0 10px 30px rgba(0,0,0,.45);
+      background:#000;
+    }
+    .brandTxt{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .brandTxt .name{
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-weight:950;
+      font-size:13px;
+      line-height:1.2;
+    }
+    .brandTxt .sub{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.04em;
+    }
+    .pill{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:11px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.80);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .loginBody{
+      padding:18px;
+    }
+
+    /* DASHBOARD VIEW (only after login) */
+    .dash{
+      display:none;
+      width:min(1480px, 100%);
+      margin:0 auto;
+      padding:26px 16px 46px;
+    }
+    .topbar{
+      border:1px solid var(--line);
+      border-radius: var(--r22);
+      background: rgba(0,0,0,.32);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      padding:18px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .topActions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background: rgba(44,255,154,.95);
+      box-shadow: 0 0 0 3px rgba(44,255,154,.12);
+    }
+    .dot.off{ background: rgba(255,77,77,.95); box-shadow:0 0 0 3px rgba(255,77,77,.12);}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 460px 1fr;
+      gap:14px;
+      margin-top:14px;
+      align-items:start;
+    }
+    @media (max-width:1100px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--r22);
+      background: rgba(0,0,0,.28);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .cardHead{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: rgba(255,255,255,.03);
+    }
+    .cardTitle{
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-size:12px;
+      color:rgba(255,255,255,.70);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      white-space:nowrap;
+    }
+    .cardTitle b{ color: rgba(255,255,255,.92); }
+    .cardBody{ padding:14px 16px; }
+
+    .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    @media (max-width:520px){ .row2{ grid-template-columns:1fr; } }
+
     .stats{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
@@ -245,7 +253,6 @@
       margin-top:12px;
     }
     @media (max-width:520px){ .stats{ grid-template-columns:1fr; } }
-
     .stat{
       border:1px solid rgba(255,255,255,.10);
       background: rgba(255,255,255,.03);
@@ -271,7 +278,6 @@
       color: rgba(255,255,255,.52);
     }
 
-    /* Table area */
     .tableTools{
       display:flex;
       gap:10px;
@@ -294,15 +300,11 @@
       padding:12px 14px;
       font-size:14px;
     }
-    .miniRow{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-      justify-content:flex-end;
-    }
 
     .tableWrap{
       background: rgba(255,255,255,.02);
       overflow:auto;
-      max-height: 660px;
+      max-height: 720px;
     }
     table{
       width:100%;
@@ -341,12 +343,12 @@
       background: rgba(255,255,255,.03);
       font-family: var(--mono);
       letter-spacing:.02em;
-      max-width: 520px;
+      max-width: 560px;
     }
     .keyText{
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width: 380px;
+      max-width: 420px;
       display:inline-block;
       vertical-align:bottom;
     }
@@ -425,7 +427,7 @@
     }
     .modal{
       width:min(560px, 100%);
-      border-radius: var(--r20);
+      border-radius: var(--r22);
       border:1px solid rgba(255,255,255,.14);
       background: rgba(10,10,12,.92);
       box-shadow: 0 40px 120px rgba(0,0,0,.75);
@@ -482,7 +484,7 @@
       margin-top:14px;
       flex-wrap:wrap;
     }
-    .modalActions .btn{ flex:1 1 200px; justify-content:center; }
+    .modalActions .btn{ flex:1 1 200px; justify-content:center; width:auto; border-radius:16px; }
     .btnDanger{
       background: rgba(255,77,77,.95);
       color: #120507;
@@ -495,24 +497,52 @@
       color: rgba(255,255,255,.92);
       box-shadow:none;
     }
-
-    /* Login sizing */
-    .loginBig{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
   </style>
 </head>
 <body>
-  <div class="page">
 
+  <!-- LOGIN ONLY (default) -->
+  <div class="loginPage" id="loginOnly">
+    <div class="loginFrame">
+      <div class="loginTop">
+        <div class="brand">
+          <img src="https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp" alt="logo"/>
+          <div class="brandTxt">
+            <div class="name">VITTEL</div>
+            <div class="sub">Admin Panel • Secure access</div>
+          </div>
+        </div>
+        <div class="pill">LOGIN</div>
+      </div>
+
+      <div class="loginBody">
+        <div>
+          <label for="loginUser">Username</label>
+          <input id="loginUser" autocomplete="off" />
+        </div>
+        <div style="margin-top:10px;">
+          <label for="loginPass">Password</label>
+          <input id="loginPass" type="password" autocomplete="off" />
+        </div>
+        <div style="margin-top:12px;">
+          <button class="btn" id="loginBtn">
+            <span>Login</span>
+            <span style="font-size:16px;">→</span>
+          </button>
+        </div>
+        <div class="msg" id="loginMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD (NOT rendered visually until logged) -->
+  <div class="dash" id="dash">
     <div class="topbar">
       <div class="brand">
         <img src="https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp" alt="logo"/>
-        <div class="brandTitle">
+        <div class="brandTxt">
           <div class="name">VITTEL</div>
-          <div class="sub">Admin Control • Wide UI • Live refresh</div>
+          <div class="sub">Admin Control • Live refresh</div>
         </div>
       </div>
 
@@ -524,36 +554,13 @@
     </div>
 
     <div class="grid">
-
-      <!-- Left: Login / Create -->
-      <div class="card" id="leftCard">
-
+      <!-- Create (left) -->
+      <div class="card">
         <div class="cardHead">
-          <div class="cardTitle"><b>Access</b> & Create</div>
-          <div class="pill">Admin only</div>
+          <div class="cardTitle"><b>Create</b> key</div>
+          <div class="pill">Admin</div>
         </div>
-
-        <!-- Login -->
-        <div class="cardBody" id="loginCard">
-          <div class="loginBig">
-            <div>
-              <label for="loginUser">Username</label>
-              <input id="loginUser" autocomplete="off" />
-            </div>
-            <div>
-              <label for="loginPass">Password</label>
-              <input id="loginPass" type="password" autocomplete="off" />
-            </div>
-            <button class="btn bigBtn" id="loginBtn">
-              <span>Login</span>
-              <span class="icon">→</span>
-            </button>
-            <div class="msg" id="loginMsg"></div>
-          </div>
-        </div>
-
-        <!-- Create -->
-        <div class="cardBody" id="createCard" style="display:none;">
+        <div class="cardBody">
           <div class="row2">
             <div>
               <label for="durationSelect">Duration</label>
@@ -568,9 +575,9 @@
             </div>
             <div>
               <label>&nbsp;</label>
-              <button class="btn bigBtn" id="createKeyBtn">
+              <button class="btn" id="createKeyBtn">
                 <span>Generate key</span>
-                <span class="icon">＋</span>
+                <span style="font-size:16px;">＋</span>
               </button>
             </div>
           </div>
@@ -600,23 +607,20 @@
 
           <div class="msg" id="createMsg"></div>
         </div>
-
       </div>
 
-      <!-- Right: Table -->
-      <div class="card" id="rightCard">
+      <!-- Table (right) -->
+      <div class="card">
         <div class="cardHead">
-          <div class="cardTitle"><b>Keys</b> database</div>
-          <div class="pill">Scroll • Search • Copy</div>
+          <div class="cardTitle"><b>Database</b> keys</div>
+          <div class="pill">Search • Copy • Delete</div>
         </div>
 
         <div class="tableTools">
           <div class="search">
             <input id="searchInput" placeholder="Search key / hwid / roblox / status…" />
           </div>
-          <div class="miniRow">
-            <button class="btn btnGhost" id="copyLastBtn" title="Copy last generated key">Copy last</button>
-          </div>
+          <button class="btn btnGhost" id="copyLastBtn">Copy last</button>
         </div>
 
         <div class="tableWrap">
@@ -637,7 +641,6 @@
           </table>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -652,7 +655,7 @@
         <button class="modalClose" id="modalClose" aria-label="Close">✕</button>
       </div>
       <div class="modalBody">
-        <p id="modalText">Are you sure you want to delete that key?</p>
+        <p id="modalText">Are you sure you want to delete that key? This action cannot be undone.</p>
         <div class="dangerBox">
           <div class="k" id="modalKey">—</div>
         </div>
@@ -666,17 +669,18 @@
 
   <script>
   (function(){
-    // Elements
-    const keysBody = document.getElementById("keysBody");
-    const keysCount = document.getElementById("keysCount");
-    const toast = document.getElementById("toast");
-
-    const loginCard = document.getElementById("loginCard");
-    const createCard = document.getElementById("createCard");
+    // Login-only view
+    const loginOnly = document.getElementById("loginOnly");
+    const dash = document.getElementById("dash");
     const loginUser = document.getElementById("loginUser");
     const loginPass = document.getElementById("loginPass");
     const loginBtn = document.getElementById("loginBtn");
     const loginMsg = document.getElementById("loginMsg");
+
+    // Dashboard elements (exist but hidden until login)
+    const keysBody = document.getElementById("keysBody");
+    const keysCount = document.getElementById("keysCount");
+    const toast = document.getElementById("toast");
 
     const durationEl = document.getElementById("durationSelect");
     const createBtn = document.getElementById("createKeyBtn");
@@ -747,16 +751,16 @@
       }
     }
 
-    function showPanel(){
-      loginCard.style.display = "none";
-      createCard.style.display = "block";
+    function showDashboard(){
+      loginOnly.style.display = "none";
+      dash.style.display = "block";
       if (refreshTimer) clearInterval(refreshTimer);
       refreshTimer = setInterval(() => loadKeys(true), 3000);
     }
 
     function showLogin(){
-      createCard.style.display = "none";
-      loginCard.style.display = "block";
+      dash.style.display = "none";
+      loginOnly.style.display = "flex";
       if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
     }
 
@@ -829,12 +833,14 @@
     async function loadKeys(silent){
       try{
         const { res, data } = await api("/api/admin/keys");
+
         if(res.status === 401){
           setLive(false);
           showLogin();
           if(!silent) setMsg(loginMsg, "Session expired. Login again.", false);
           return;
         }
+
         if(!res.ok || !Array.isArray(data)){
           setLive(false);
           if(!silent) showToast("Failed to load keys");
@@ -845,7 +851,7 @@
         allKeys = data;
         computeStats(allKeys);
         renderTable(filterKeys());
-      }catch(e){
+      }catch{
         setLive(false);
         if(!silent) showToast("Error loading");
       }
@@ -855,24 +861,28 @@
       setMsg(loginMsg, "", true);
       const u = loginUser.value.trim();
       const p = loginPass.value;
+
       if(!u || !p){
         setMsg(loginMsg, "Enter username and password.", false);
         return;
       }
+
       try{
         const { res, data } = await api("/api/admin/login", {
           method:"POST",
           headers:{ "Content-Type":"application/json" },
           body:JSON.stringify({ username:u, password:p })
         });
+
         if(!res.ok || !data || !data.ok){
           setMsg(loginMsg, "Invalid credentials.", false);
           return;
         }
+
         setMsg(loginMsg, "Logged in.", true);
-        showPanel();
+        showDashboard();
         loadKeys(true);
-      }catch(e){
+      }catch{
         setMsg(loginMsg, "Request failed.", false);
       }
     }
@@ -905,7 +915,7 @@
         setMsg(createMsg, "Key created successfully.", true);
         showToast("Key generated");
         loadKeys(true);
-      }catch(e){
+      }catch{
         setMsg(createMsg, "Request failed.", false);
       }
     }
@@ -925,7 +935,6 @@
       }
     }
 
-    // Custom modal
     function openDeleteModal(id, keyValue){
       pendingDelete = { id, key_value: keyValue };
       modalKey.textContent = keyValue || "—";
@@ -962,7 +971,7 @@
         closeDeleteModal();
         showToast("Key deleted");
         loadKeys(true);
-      }catch(e){
+      }catch{
         showToast("Error");
       }
     }
@@ -972,20 +981,19 @@
     loginPass.addEventListener("keydown", e => { if(e.key === "Enter") login(); });
     loginUser.addEventListener("keydown", e => { if(e.key === "Enter") login(); });
 
-    createBtn.addEventListener("click", createKey);
-    refreshBtn.addEventListener("click", () => loadKeys(false));
-
-    copyLastBtn.addEventListener("click", () => {
+    if (createBtn) createBtn.addEventListener("click", createKey);
+    if (refreshBtn) refreshBtn.addEventListener("click", () => loadKeys(false));
+    if (copyLastBtn) copyLastBtn.addEventListener("click", () => {
       const val = lastGenerated || lastKeyEl.value || "";
       if(!val) return showToast("No key to copy");
       copyText(val);
     });
 
-    searchInput.addEventListener("input", () => {
+    if (searchInput) searchInput.addEventListener("input", () => {
       renderTable(filterKeys());
     });
 
-    keysBody.addEventListener("click", (e) => {
+    if (keysBody) keysBody.addEventListener("click", (e) => {
       const copyBtn = e.target.closest("button[data-copy]");
       if(copyBtn){
         copyText(copyBtn.dataset.copy);
@@ -1000,20 +1008,18 @@
 
     modalClose.addEventListener("click", closeDeleteModal);
     modalCancel.addEventListener("click", closeDeleteModal);
-    modalOverlay.addEventListener("click", (e) => {
-      if(e.target === modalOverlay) closeDeleteModal();
-    });
+    modalOverlay.addEventListener("click", (e) => { if(e.target === modalOverlay) closeDeleteModal(); });
     modalConfirm.addEventListener("click", confirmDelete);
 
     document.addEventListener("keydown", (e) => {
       if(e.key === "Escape" && modalOverlay.style.display === "flex") closeDeleteModal();
     });
 
-    // Boot: auto session check
+    // Boot: detect if already logged (without revealing dashboard)
     (async function boot(){
       const { res } = await api("/api/admin/keys");
       if(res.ok){
-        showPanel();
+        showDashboard();
         loadKeys(true);
       }else{
         setLive(false);
