@@ -6,74 +6,161 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
-      --bg:#0b0b0d;
+      --bg:#070709;
+      --bg2:#0b0b0d;
       --card:rgba(255,255,255,.04);
+      --card2:rgba(255,255,255,.06);
       --line:rgba(255,255,255,.10);
       --line2:rgba(255,255,255,.16);
-      --text:#f2f2f2;
+      --text:#f3f3f3;
       --muted:rgba(255,255,255,.62);
+      --muted2:rgba(255,255,255,.48);
       --btn:#f2f2f2;
       --btnText:#0b0b0d;
       --danger:#ff4d4d;
       --ok:#2cff9a;
-      --radius:18px;
-      --radius2:14px;
-      --shadow: 0 30px 90px rgba(0,0,0,.55);
+      --warn:#ffd24d;
+      --shadow: 0 30px 90px rgba(0,0,0,.60);
+      --shadow2: 0 18px 60px rgba(0,0,0,.50);
+      --r20:22px;
+      --r16:16px;
+      --r14:14px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
+
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      min-height:100vh;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       color:var(--text);
       background:
-        radial-gradient(900px 420px at 15% 20%, rgba(255,255,255,.06), transparent 60%),
-        radial-gradient(700px 420px at 85% 75%, rgba(255,255,255,.04), transparent 60%),
-        linear-gradient(180deg, #0b0b0d, #070709);
-      padding:28px 14px;
-      display:flex;
-      justify-content:center;
+        radial-gradient(900px 420px at 15% 20%, rgba(255,255,255,.07), transparent 60%),
+        radial-gradient(700px 420px at 85% 75%, rgba(255,255,255,.05), transparent 60%),
+        linear-gradient(180deg, var(--bg2), var(--bg));
+      overflow-x:hidden;
     }
-    .wrap{ width:min(1200px, 100%); }
-    .top{
+
+    /* Layout */
+    .page{
+      width:min(1480px, 100%);
+      margin:0 auto;
+      padding:26px 16px 46px;
+    }
+
+    /* Top header */
+    .topbar{
+      border:1px solid var(--line);
+      border-radius: var(--r20);
+      background: rgba(0,0,0,.32);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      padding:18px 18px;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:14px;
-      padding:16px 18px;
-      border:1px solid var(--line);
-      border-radius:22px;
-      background: rgba(0,0,0,.30);
-      backdrop-filter: blur(10px);
-      box-shadow: var(--shadow);
-      margin-bottom:14px;
     }
+
     .brand{
-      display:flex;align-items:center;gap:10px;
-      letter-spacing:.16em;text-transform:uppercase;
-      font-weight:800;font-size:13px;
+      display:flex;
+      align-items:center;
+      gap:12px;
     }
     .brand img{
-      width:18px;height:18px;border-radius:6px;object-fit:cover;
+      width:28px;height:28px;border-radius:10px;object-fit:cover;
       border:1px solid rgba(255,255,255,.16);
-      box-shadow: 0 8px 24px rgba(0,0,0,.45);
+      box-shadow: 0 10px 30px rgba(0,0,0,.45);
       background:#000;
     }
-    .sub{ color:var(--muted); font-size:12px; letter-spacing:.06em; }
+    .brandTitle{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .brandTitle .name{
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-weight:900;
+      font-size:13px;
+      line-height:1.2;
+    }
+    .brandTitle .sub{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.04em;
+    }
+
+    .topActions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .pill{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:11px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.80);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background: rgba(44,255,154,.95);
+      box-shadow: 0 0 0 3px rgba(44,255,154,.12);
+    }
+    .dot.off{ background: rgba(255,77,77,.95); box-shadow:0 0 0 3px rgba(255,77,77,.12);}
+
+    .btn{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      border-radius: 999px;
+      padding:10px 14px;
+      font-weight:900;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      font-size:11px;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      background: var(--btn);
+      color: var(--btnText);
+      transition: transform .12s ease, filter .12s ease;
+      box-shadow: var(--shadow2);
+    }
+    .btn:hover{ transform: translateY(-1px); filter: brightness(1.03); }
+    .btnGhost{
+      background: transparent;
+      color: rgba(255,255,255,.90);
+      border: 1px solid var(--line2);
+      box-shadow:none;
+    }
+
+    /* Main grid */
     .grid{
       display:grid;
       grid-template-columns: 420px 1fr;
       gap:14px;
+      margin-top:14px;
+      align-items:start;
     }
-    @media (max-width:980px){
-      .grid{ grid-template-columns:1fr; }
+    @media (max-width:1100px){
+      .grid{ grid-template-columns: 1fr; }
     }
 
+    /* Cards */
     .card{
       border:1px solid var(--line);
-      border-radius:22px;
-      background: rgba(0,0,0,.26);
+      border-radius: var(--r20);
+      background: rgba(0,0,0,.28);
       box-shadow: var(--shadow);
       overflow:hidden;
     }
@@ -91,30 +178,27 @@
       text-transform:uppercase;
       font-size:12px;
       color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      white-space:nowrap;
     }
-    .pill{
-      font-size:11px;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      color:rgba(255,255,255,.75);
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-    }
-    .body{ padding:14px 16px; }
+    .cardTitle b{ color: rgba(255,255,255,.92); }
+    .cardBody{ padding:14px 16px; }
+
+    /* Fields */
     label{
       display:block;
-      font-size:12px;
-      letter-spacing:.10em;
+      font-size:11px;
+      letter-spacing:.14em;
       text-transform:uppercase;
       color:var(--muted);
-      margin:0 0 6px;
+      margin:0 0 7px;
     }
     input, select{
       width:100%;
       padding:12px 12px;
-      border-radius:14px;
+      border-radius: var(--r16);
       border:1px solid var(--line);
       background: rgba(255,255,255,.03);
       color:var(--text);
@@ -125,59 +209,119 @@
       border-color: rgba(255,255,255,.28);
       box-shadow: 0 0 0 3px rgba(255,255,255,.06);
     }
-    .row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    @media (max-width:520px){ .row{ grid-template-columns:1fr; } }
 
-    .btn{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      border-radius:16px;
-      padding:12px 14px;
-      font-weight:800;
-      letter-spacing:.02em;
-      font-size:14px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      background: var(--btn);
-      color: var(--btnText);
-      transition: transform .12s ease, filter .12s ease;
+    .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    @media (max-width:520px){ .row2{ grid-template-columns:1fr; } }
+
+    .bigBtn{
+      border-radius: var(--r16);
       width:100%;
+      justify-content:space-between;
+      padding:14px 16px;
+      font-size:12px;
+      letter-spacing:.08em;
     }
-    .btn:hover{ transform: translateY(-1px); filter: brightness(1.03); }
-    .btnGhost{
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--line2);
+    .bigBtn span.icon{
+      width:34px;height:34px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      background: rgba(0,0,0,.10);
+      font-size:16px;
     }
+
     .msg{
       margin-top:10px;
       font-size:12px;
       color:var(--muted);
       min-height:16px;
     }
-    .msg.ok{ color: rgba(44,255,154,.82); }
+    .msg.ok{ color: rgba(44,255,154,.85); }
     .msg.err{ color: rgba(255,77,77,.85); }
 
+    /* Stats */
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+    @media (max-width:520px){ .stats{ grid-template-columns:1fr; } }
+
+    .stat{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      border-radius: var(--r16);
+      padding:12px 12px;
+    }
+    .stat .label{
+      font-size:11px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color: rgba(255,255,255,.60);
+      margin-bottom:6px;
+    }
+    .stat .value{
+      font-size:22px;
+      font-weight:950;
+      letter-spacing:-.02em;
+      color: rgba(255,255,255,.92);
+    }
+    .stat .hint{
+      margin-top:4px;
+      font-size:12px;
+      color: rgba(255,255,255,.52);
+    }
+
+    /* Table area */
+    .tableTools{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      padding:12px 16px;
+      border-bottom:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+    }
+    .search{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex:1 1 520px;
+      min-width:260px;
+    }
+    .search input{
+      border-radius:999px;
+      padding:12px 14px;
+      font-size:14px;
+    }
+    .miniRow{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
     .tableWrap{
-      border-top:1px solid var(--line);
       background: rgba(255,255,255,.02);
       overflow:auto;
-      max-height: 560px;
+      max-height: 660px;
     }
-    table{ width:100%; border-collapse:collapse; font-size:13px; }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      min-width: 980px;
+    }
     thead{
       position:sticky; top:0; z-index:2;
-      background: rgba(0,0,0,.55);
+      background: rgba(0,0,0,.65);
       backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(255,255,255,.08);
     }
     th, td{
-      padding:12px 12px;
+      padding:14px 12px;
       border-bottom:1px solid rgba(255,255,255,.08);
       text-align:left;
       white-space:nowrap;
+      vertical-align:middle;
     }
     th{
       font-size:11px;
@@ -186,53 +330,76 @@
       color:rgba(255,255,255,.60);
     }
     tbody tr:hover{ background: rgba(255,255,255,.03); }
-    .key{
-      font-family: var(--mono);
-      letter-spacing:.02em;
-      padding:6px 10px;
+
+    .keyPill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 12px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.03);
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
+      font-family: var(--mono);
+      letter-spacing:.02em;
+      max-width: 520px;
+    }
+    .keyText{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 380px;
+      display:inline-block;
+      vertical-align:bottom;
     }
     .tinyBtn{
       border:none; cursor:pointer;
       border-radius:999px;
-      padding:6px 10px;
+      padding:8px 10px;
       font-size:11px;
-      font-weight:800;
-      letter-spacing:.08em;
+      font-weight:950;
+      letter-spacing:.10em;
       text-transform:uppercase;
       background: rgba(255,255,255,.12);
       color:rgba(255,255,255,.92);
     }
     .tinyBtn:hover{ filter: brightness(1.08); }
-    .danger{
+    .tinyBtn.danger{
       background: rgba(255,77,77,.14);
       color: rgba(255,77,77,.95);
       border: 1px solid rgba(255,77,77,.22);
     }
+
     .badgeStatus{
-      padding:6px 10px;
+      padding:8px 12px;
       border-radius:999px;
       font-size:11px;
-      letter-spacing:.10em;
+      letter-spacing:.12em;
       text-transform:uppercase;
       border:1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.03);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .badgeStatus .bDot{
+      width:8px;height:8px;border-radius:999px;background: rgba(255,255,255,.55);
+      box-shadow:0 0 0 3px rgba(255,255,255,.08);
     }
     .st-active{ color: rgba(44,255,154,.92); border-color: rgba(44,255,154,.22); background: rgba(44,255,154,.08); }
+    .st-active .bDot{ background: rgba(44,255,154,.95); box-shadow:0 0 0 3px rgba(44,255,154,.10); }
     .st-expired{ color: rgba(255,77,77,.92); border-color: rgba(255,77,77,.22); background: rgba(255,77,77,.08); }
+    .st-expired .bDot{ background: rgba(255,77,77,.95); box-shadow:0 0 0 3px rgba(255,77,77,.10); }
     .st-unused{ color: rgba(255,255,255,.82); }
 
+    .mutedCell{ color: rgba(255,255,255,.66); }
+    .smallCell{ color: rgba(255,255,255,.52); font-size:12px; }
+
+    /* Toast */
     .toast{
       position:fixed;
       left:50%;
       bottom:18px;
       transform:translateX(-50%);
-      padding:10px 12px;
+      padding:10px 14px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.14);
       background: rgba(0,0,0,.70);
@@ -244,29 +411,131 @@
       backdrop-filter: blur(10px);
       z-index:999;
     }
+
+    /* Modal */
+    .modalOverlay{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.70);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px 14px;
+      z-index:1000;
+    }
+    .modal{
+      width:min(560px, 100%);
+      border-radius: var(--r20);
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(10,10,12,.92);
+      box-shadow: 0 40px 120px rgba(0,0,0,.75);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: rgba(255,255,255,.03);
+    }
+    .modalTitle{
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color: rgba(255,255,255,.70);
+      display:flex; align-items:center; gap:10px;
+    }
+    .modalTitle b{ color: rgba(255,255,255,.92); }
+    .modalClose{
+      border:none; cursor:pointer;
+      background: transparent;
+      color: rgba(255,255,255,.70);
+      font-size:18px;
+      padding:6px 10px;
+      border-radius:12px;
+    }
+    .modalClose:hover{ background: rgba(255,255,255,.06); color: rgba(255,255,255,.92); }
+    .modalBody{ padding:16px; }
+    .modalBody p{
+      margin:0 0 12px;
+      color: rgba(255,255,255,.72);
+      line-height:1.6;
+      font-size:13px;
+    }
+    .dangerBox{
+      border:1px solid rgba(255,77,77,.22);
+      background: rgba(255,77,77,.08);
+      border-radius: var(--r16);
+      padding:12px;
+    }
+    .dangerBox .k{
+      font-family: var(--mono);
+      word-break:break-all;
+      color: rgba(255,255,255,.92);
+      font-size:13px;
+    }
+    .modalActions{
+      display:flex;
+      gap:10px;
+      margin-top:14px;
+      flex-wrap:wrap;
+    }
+    .modalActions .btn{ flex:1 1 200px; justify-content:center; }
+    .btnDanger{
+      background: rgba(255,77,77,.95);
+      color: #120507;
+      box-shadow: 0 18px 60px rgba(255,77,77,.18);
+    }
+    .btnDanger:hover{ filter: brightness(1.02); }
+    .btnCancel{
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.16);
+      color: rgba(255,255,255,.92);
+      box-shadow:none;
+    }
+
+    /* Login sizing */
+    .loginBig{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div>
-        <div class="brand">
-          <img src="https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp" alt="logo"/>
-          <span>VITTEL</span>
+  <div class="page">
+
+    <div class="topbar">
+      <div class="brand">
+        <img src="https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp" alt="logo"/>
+        <div class="brandTitle">
+          <div class="name">VITTEL</div>
+          <div class="sub">Admin Control • Wide UI • Live refresh</div>
         </div>
-        <div class="sub">Admin panel • session saved • auto-refresh</div>
       </div>
-      <div class="pill" id="keysCount">0 keys</div>
+
+      <div class="topActions">
+        <div class="pill" id="livePill"><span class="dot" id="liveDot"></span><span id="liveTxt">LIVE</span></div>
+        <div class="pill" id="keysCount">0 KEYS</div>
+        <button class="btn btnGhost" id="refreshBtn">Refresh</button>
+      </div>
     </div>
 
     <div class="grid">
-      <div class="card" id="loginCard">
+
+      <!-- Left: Login / Create -->
+      <div class="card" id="leftCard">
+
         <div class="cardHead">
-          <div class="cardTitle">Admin Login</div>
-          <div class="pill">Secure</div>
+          <div class="cardTitle"><b>Access</b> & Create</div>
+          <div class="pill">Admin only</div>
         </div>
-        <div class="body">
-          <div class="row">
+
+        <!-- Login -->
+        <div class="cardBody" id="loginCard">
+          <div class="loginBig">
             <div>
               <label for="loginUser">Username</label>
               <input id="loginUser" autocomplete="off" />
@@ -275,22 +544,17 @@
               <label for="loginPass">Password</label>
               <input id="loginPass" type="password" autocomplete="off" />
             </div>
+            <button class="btn bigBtn" id="loginBtn">
+              <span>Login</span>
+              <span class="icon">→</span>
+            </button>
+            <div class="msg" id="loginMsg"></div>
           </div>
-          <div style="margin-top:10px;">
-            <button class="btn" id="loginBtn">Login</button>
-          </div>
-          <div class="msg" id="loginMsg"></div>
-        </div>
-      </div>
-
-      <div class="card" id="mainPanel" style="display:none;">
-        <div class="cardHead">
-          <div class="cardTitle">Key management</div>
-          <div class="pill">Auto refresh: 3s</div>
         </div>
 
-        <div class="body">
-          <div class="row">
+        <!-- Create -->
+        <div class="cardBody" id="createCard" style="display:none;">
+          <div class="row2">
             <div>
               <label for="durationSelect">Duration</label>
               <select id="durationSelect">
@@ -304,7 +568,10 @@
             </div>
             <div>
               <label>&nbsp;</label>
-              <button class="btn" id="createKeyBtn">Generate key</button>
+              <button class="btn bigBtn" id="createKeyBtn">
+                <span>Generate key</span>
+                <span class="icon">＋</span>
+              </button>
             </div>
           </div>
 
@@ -313,7 +580,43 @@
             <input id="lastKey" readonly />
           </div>
 
+          <div class="stats">
+            <div class="stat">
+              <div class="label">Total</div>
+              <div class="value" id="statTotal">0</div>
+              <div class="hint">All keys in database</div>
+            </div>
+            <div class="stat">
+              <div class="label">Active</div>
+              <div class="value" id="statActive">0</div>
+              <div class="hint">Currently in use</div>
+            </div>
+            <div class="stat">
+              <div class="label">Expired</div>
+              <div class="value" id="statExpired">0</div>
+              <div class="hint">Out of time</div>
+            </div>
+          </div>
+
           <div class="msg" id="createMsg"></div>
+        </div>
+
+      </div>
+
+      <!-- Right: Table -->
+      <div class="card" id="rightCard">
+        <div class="cardHead">
+          <div class="cardTitle"><b>Keys</b> database</div>
+          <div class="pill">Scroll • Search • Copy</div>
+        </div>
+
+        <div class="tableTools">
+          <div class="search">
+            <input id="searchInput" placeholder="Search key / hwid / roblox / status…" />
+          </div>
+          <div class="miniRow">
+            <button class="btn btnGhost" id="copyLastBtn" title="Copy last generated key">Copy last</button>
+          </div>
         </div>
 
         <div class="tableWrap">
@@ -334,36 +637,82 @@
           </table>
         </div>
       </div>
+
     </div>
   </div>
 
+  <!-- Toast -->
   <div class="toast" id="toast"></div>
+
+  <!-- Modal -->
+  <div class="modalOverlay" id="modalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modalHead">
+        <div class="modalTitle" id="modalTitle"><b>Confirm</b> deletion</div>
+        <button class="modalClose" id="modalClose" aria-label="Close">✕</button>
+      </div>
+      <div class="modalBody">
+        <p id="modalText">Are you sure you want to delete that key?</p>
+        <div class="dangerBox">
+          <div class="k" id="modalKey">—</div>
+        </div>
+        <div class="modalActions">
+          <button class="btn btnCancel" id="modalCancel">Cancel</button>
+          <button class="btn btnDanger" id="modalConfirm">Delete key</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
   (function(){
+    // Elements
+    const keysBody = document.getElementById("keysBody");
+    const keysCount = document.getElementById("keysCount");
+    const toast = document.getElementById("toast");
+
     const loginCard = document.getElementById("loginCard");
-    const mainPanel = document.getElementById("mainPanel");
+    const createCard = document.getElementById("createCard");
     const loginUser = document.getElementById("loginUser");
     const loginPass = document.getElementById("loginPass");
     const loginBtn = document.getElementById("loginBtn");
     const loginMsg = document.getElementById("loginMsg");
 
-    const createBtn = document.getElementById("createKeyBtn");
     const durationEl = document.getElementById("durationSelect");
+    const createBtn = document.getElementById("createKeyBtn");
     const createMsg = document.getElementById("createMsg");
     const lastKeyEl = document.getElementById("lastKey");
 
-    const keysBody = document.getElementById("keysBody");
-    const keysCount = document.getElementById("keysCount");
-    const toast = document.getElementById("toast");
+    const statTotal = document.getElementById("statTotal");
+    const statActive = document.getElementById("statActive");
+    const statExpired = document.getElementById("statExpired");
 
+    const searchInput = document.getElementById("searchInput");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const copyLastBtn = document.getElementById("copyLastBtn");
+
+    const liveDot = document.getElementById("liveDot");
+    const liveTxt = document.getElementById("liveTxt");
+
+    // Modal
+    const modalOverlay = document.getElementById("modalOverlay");
+    const modalClose = document.getElementById("modalClose");
+    const modalCancel = document.getElementById("modalCancel");
+    const modalConfirm = document.getElementById("modalConfirm");
+    const modalKey = document.getElementById("modalKey");
+    const modalText = document.getElementById("modalText");
+
+    // State
     let refreshTimer = null;
+    let allKeys = [];
+    let pendingDelete = null; // {id, key_value}
+    let lastGenerated = "";
 
     function showToast(text){
       toast.textContent = text;
       toast.style.display = "block";
       clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => toast.style.display = "none", 1400);
+      showToast._t = setTimeout(() => toast.style.display = "none", 1500);
     }
 
     function setMsg(el, msg, ok){
@@ -379,17 +728,127 @@
       return { res, data, raw:text };
     }
 
+    function esc(s){
+      return String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    function fmtDate(v){
+      if(!v) return "—";
+      try{ return new Date(v).toLocaleString(); }catch{ return "—"; }
+    }
+
+    function setLive(on){
+      if(on){
+        liveDot.classList.remove("off");
+        liveTxt.textContent = "LIVE";
+      }else{
+        liveDot.classList.add("off");
+        liveTxt.textContent = "OFF";
+      }
+    }
+
     function showPanel(){
       loginCard.style.display = "none";
-      mainPanel.style.display = "block";
+      createCard.style.display = "block";
       if (refreshTimer) clearInterval(refreshTimer);
       refreshTimer = setInterval(() => loadKeys(true), 3000);
     }
 
     function showLogin(){
-      mainPanel.style.display = "none";
+      createCard.style.display = "none";
       loginCard.style.display = "block";
       if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+    }
+
+    function computeStats(list){
+      const total = list.length;
+      const active = list.filter(k => k.status === "active").length;
+      const expired = list.filter(k => k.status === "expired").length;
+      statTotal.textContent = total;
+      statActive.textContent = active;
+      statExpired.textContent = expired;
+      keysCount.textContent = total + " KEYS";
+    }
+
+    function filterKeys(){
+      const q = (searchInput.value || "").trim().toLowerCase();
+      if(!q) return allKeys;
+
+      return allKeys.filter(k => {
+        const blob = [
+          k.key_value,
+          k.status,
+          k.duration_type,
+          k.hwid,
+          k.roblox_username,
+          k.roblox_user_id
+        ].map(x => String(x || "")).join(" ").toLowerCase();
+        return blob.includes(q);
+      });
+    }
+
+    function renderTable(list){
+      if(!Array.isArray(list) || list.length === 0){
+        keysBody.innerHTML = "<tr><td colspan='8' class='smallCell'>No keys found.</td></tr>";
+        return;
+      }
+
+      keysBody.innerHTML = "";
+      list.forEach(k => {
+        const tr = document.createElement("tr");
+
+        const stClass =
+          k.status === "active" ? "badgeStatus st-active" :
+          k.status === "expired" ? "badgeStatus st-expired" :
+          "badgeStatus st-unused";
+
+        const firstUsed = k.first_used_at ? fmtDate(k.first_used_at) : "—";
+        const expires = k.expires_at ? fmtDate(k.expires_at) : (k.duration_type === "lifetime" ? "Never" : "Not started");
+
+        tr.innerHTML = `
+          <td>
+            <span class="keyPill" title="${esc(k.key_value)}">
+              <span class="keyText">${esc(k.key_value)}</span>
+              <button class="tinyBtn" data-copy="${esc(k.key_value)}">Copy</button>
+            </span>
+          </td>
+          <td><span class="${stClass}"><span class="bDot"></span>${esc(k.status || "unused")}</span></td>
+          <td>${esc(k.duration_type || "")}</td>
+          <td class="smallCell">${esc(firstUsed)}</td>
+          <td class="smallCell">${esc(expires)}</td>
+          <td class="mutedCell">${k.hwid ? esc(k.hwid) : "—"}</td>
+          <td class="mutedCell">${k.roblox_username ? esc(k.roblox_username) + " ("+esc(k.roblox_user_id)+")" : "—"}</td>
+          <td>
+            <button class="tinyBtn danger" data-del="${esc(k.id)}" data-delkey="${esc(k.key_value)}">Delete</button>
+          </td>
+        `;
+        keysBody.appendChild(tr);
+      });
+    }
+
+    async function loadKeys(silent){
+      try{
+        const { res, data } = await api("/api/admin/keys");
+        if(res.status === 401){
+          setLive(false);
+          showLogin();
+          if(!silent) setMsg(loginMsg, "Session expired. Login again.", false);
+          return;
+        }
+        if(!res.ok || !Array.isArray(data)){
+          setLive(false);
+          if(!silent) showToast("Failed to load keys");
+          return;
+        }
+
+        setLive(true);
+        allKeys = data;
+        computeStats(allKeys);
+        renderTable(filterKeys());
+      }catch(e){
+        setLive(false);
+        if(!silent) showToast("Error loading");
+      }
     }
 
     async function login(){
@@ -418,122 +877,45 @@
       }
     }
 
-    function esc(s){
-      return String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    }
-
-    function fmtDate(v){
-      if(!v) return "—";
-      try{ return new Date(v).toLocaleString(); }catch{ return "—"; }
-    }
-
-    async function loadKeys(silent){
-      if (!silent) keysBody.innerHTML = "<tr><td colspan='8' style='color:rgba(255,255,255,.55);padding:16px;'>Loading…</td></tr>";
-      try{
-        const { res, data } = await api("/api/admin/keys");
-        if(res.status === 401){
-          showLogin();
-          setMsg(loginMsg, "Session expired. Login again.", false);
-          return;
-        }
-        if(!res.ok || !Array.isArray(data)){
-          keysBody.innerHTML = "<tr><td colspan='8' style='color:rgba(255,255,255,.55);padding:16px;'>Failed to load keys.</td></tr>";
-          keysCount.textContent = "0 keys";
-          return;
-        }
-
-        keysCount.textContent = data.length + " keys";
-        keysBody.innerHTML = "";
-
-        data.forEach(k => {
-          const tr = document.createElement("tr");
-
-          const statusClass =
-            k.status === "active" ? "badgeStatus st-active" :
-            k.status === "expired" ? "badgeStatus st-expired" :
-            "badgeStatus st-unused";
-
-          const firstUsed = k.first_used_at ? fmtDate(k.first_used_at) : "—";
-          const expires = k.expires_at ? fmtDate(k.expires_at) : (k.duration_type === "lifetime" ? "Never" : "Not started");
-
-          tr.innerHTML = `
-            <td>
-              <span class="key">
-                <span>${esc(k.key_value)}</span>
-                <button class="tinyBtn" data-copy="${esc(k.key_value)}">Copy</button>
-              </span>
-            </td>
-            <td><span class="${statusClass}">${esc(k.status || "unused")}</span></td>
-            <td>${esc(k.duration_type || "")}</td>
-            <td>${esc(firstUsed)}</td>
-            <td>${esc(expires)}</td>
-            <td style="color:rgba(255,255,255,.70)">${k.hwid ? esc(k.hwid) : "—"}</td>
-            <td style="color:rgba(255,255,255,.70)">${k.roblox_username ? esc(k.roblox_username) + " ("+esc(k.roblox_user_id)+")" : "—"}</td>
-            <td>
-              <button class="tinyBtn danger" data-del="${esc(k.id)}">Delete</button>
-            </td>
-          `;
-          keysBody.appendChild(tr);
-        });
-
-      }catch(e){
-        keysBody.innerHTML = "<tr><td colspan='8' style='color:rgba(255,255,255,.55);padding:16px;'>Error.</td></tr>";
-      }
-    }
-
     async function createKey(){
       setMsg(createMsg, "", true);
       const dur = durationEl.value;
+
       try{
         const { res, data } = await api("/api/admin/keys", {
           method:"POST",
           headers:{ "Content-Type":"application/json" },
           body:JSON.stringify({ duration_type: dur })
         });
+
         if(res.status === 401){
+          setLive(false);
           showLogin();
           setMsg(loginMsg, "Session expired. Login again.", false);
           return;
         }
+
         if(!res.ok || !data || !data.ok){
           setMsg(createMsg, "Failed to create key.", false);
           return;
         }
-        lastKeyEl.value = data.key.key_value;
-        setMsg(createMsg, "Key created.", true);
-        showToast("Copied to field");
+
+        lastGenerated = data.key.key_value;
+        lastKeyEl.value = lastGenerated;
+        setMsg(createMsg, "Key created successfully.", true);
+        showToast("Key generated");
         loadKeys(true);
       }catch(e){
         setMsg(createMsg, "Request failed.", false);
       }
     }
 
-    async function deleteKey(id){
-      if(!confirm("Delete this key?")) return;
-      try{
-        const { res, data } = await api("/api/admin/keys/delete?id="+encodeURIComponent(id), { method:"DELETE" });
-        if(res.status === 401){
-          showLogin();
-          setMsg(loginMsg, "Session expired. Login again.", false);
-          return;
-        }
-        if(!res.ok || !data || !data.ok){
-          alert("Failed to delete key.");
-          return;
-        }
-        showToast("Deleted");
-        loadKeys(true);
-      }catch(e){
-        alert("Error.");
-      }
-    }
-
-    async function copyKey(val){
+    async function copyText(val){
+      if(!val) return;
       try{
         await navigator.clipboard.writeText(val);
         showToast("Copied");
       }catch{
-        // fallback
         const t = document.createElement("textarea");
         t.value = val;
         document.body.appendChild(t);
@@ -543,23 +925,88 @@
       }
     }
 
+    // Custom modal
+    function openDeleteModal(id, keyValue){
+      pendingDelete = { id, key_value: keyValue };
+      modalKey.textContent = keyValue || "—";
+      modalText.textContent = "Are you sure you want to delete that key? This action cannot be undone.";
+      modalOverlay.style.display = "flex";
+      modalOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeDeleteModal(){
+      pendingDelete = null;
+      modalOverlay.style.display = "none";
+      modalOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    async function confirmDelete(){
+      if(!pendingDelete) return;
+      const { id } = pendingDelete;
+
+      try{
+        const { res, data } = await api("/api/admin/keys/delete?id="+encodeURIComponent(id), { method:"DELETE" });
+
+        if(res.status === 401){
+          closeDeleteModal();
+          showLogin();
+          setMsg(loginMsg, "Session expired. Login again.", false);
+          return;
+        }
+
+        if(!res.ok || !data || !data.ok){
+          showToast("Delete failed");
+          return;
+        }
+
+        closeDeleteModal();
+        showToast("Key deleted");
+        loadKeys(true);
+      }catch(e){
+        showToast("Error");
+      }
+    }
+
+    // Events
     loginBtn.addEventListener("click", login);
     loginPass.addEventListener("keydown", e => { if(e.key === "Enter") login(); });
     loginUser.addEventListener("keydown", e => { if(e.key === "Enter") login(); });
 
     createBtn.addEventListener("click", createKey);
+    refreshBtn.addEventListener("click", () => loadKeys(false));
+
+    copyLastBtn.addEventListener("click", () => {
+      const val = lastGenerated || lastKeyEl.value || "";
+      if(!val) return showToast("No key to copy");
+      copyText(val);
+    });
+
+    searchInput.addEventListener("input", () => {
+      renderTable(filterKeys());
+    });
 
     keysBody.addEventListener("click", (e) => {
       const copyBtn = e.target.closest("button[data-copy]");
       if(copyBtn){
-        copyKey(copyBtn.dataset.copy);
+        copyText(copyBtn.dataset.copy);
         return;
       }
       const delBtn = e.target.closest("button[data-del]");
       if(delBtn){
-        deleteKey(delBtn.dataset.del);
+        openDeleteModal(delBtn.dataset.del, delBtn.dataset.delkey);
         return;
       }
+    });
+
+    modalClose.addEventListener("click", closeDeleteModal);
+    modalCancel.addEventListener("click", closeDeleteModal);
+    modalOverlay.addEventListener("click", (e) => {
+      if(e.target === modalOverlay) closeDeleteModal();
+    });
+    modalConfirm.addEventListener("click", confirmDelete);
+
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape" && modalOverlay.style.display === "flex") closeDeleteModal();
     });
 
     // Boot: auto session check
@@ -569,6 +1016,7 @@
         showPanel();
         loadKeys(true);
       }else{
+        setLive(false);
         showLogin();
       }
     })();
