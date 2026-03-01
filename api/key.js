@@ -390,7 +390,6 @@ function renderKeySystem({ step, progressPct, progressLabel, title, subtitle, sh
 
       <div class="meta">
         <div class="pill"><span>Current</span><strong>STEP ${step}</strong></div>
-        <div class="pill"><span>Title</span><strong>${title}</strong></div>
         <div class="pill"><span>Info</span><strong>${subtitle}</strong></div>
       </div>
     </div>
@@ -607,4 +606,5 @@ export default async function handler(req, res) {
     inner: `<div class="content"><div class="main"><div class="bypass"><h2>Invalid step</h2><p>Something went wrong.</p></div></div><div class="side"></div></div>`
   }));
 }
+
 
