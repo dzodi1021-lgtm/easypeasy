@@ -3,19 +3,52 @@ import { html, redirect, parseCookies, setCookie } from "../lib/http.js";
 import { signState, verifyState } from "../lib/state.js";
 import crypto from "crypto";
 
+/* -------------------- KEY FORMAT -------------------- */
 function randomBlock4() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let out = "";
   for (let i = 0; i < 4; i++) out += chars[crypto.randomInt(0, chars.length)];
   return out;
 }
-function generateOrisKey() {
-  return `ORIS-${randomBlock4()}-${randomBlock4()}-${randomBlock4()}`;
+function generateVittelKey() {
+  return `VITTEL-${randomBlock4()}-${randomBlock4()}-${randomBlock4()}`;
 }
 
-const BRAND_NAME = "ORIS";
-const BRAND_LOGO_URL = "https://i.postimg.cc/d3BmhqTg/e5201c96-07a3-491f-97c5-99354890190c.png";
-const DISCORD_URL = "https://discord.gg/HNjezqC5Dv";
+/* -------------------- BRAND / UI -------------------- */
+const BRAND_NAME = "VITTEL";
+const BRAND_LOGO_URL = "https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp";
+const DISCORD_URL = "https://discord.gg/vittel";
+
+/* -------------------- WORK.INK VERIFY -------------------- */
+/**
+ * Validates a Work.ink token (wk/hash/etc). Uses deleteToken=1 to make it single-use.
+ * Endpoint referenced from Work.ink migration guide. :contentReference[oaicite:1]{index=1}
+ */
+async function verifyWorkinkToken(token, { singleUse = true } = {}) {
+  if (!token) return false;
+
+  const deleteTokenParam = singleUse ? "?deleteToken=1" : "";
+  const url = `https://work.ink/_api/v2/token/isValid/${encodeURIComponent(token)}${deleteTokenParam}`;
+
+  try {
+    const resp = await fetch(url, { method: "GET" });
+    if (!resp.ok) return false;
+
+    const data = await resp.json().catch(() => null);
+    // Usually: { valid: true }
+    return !!(data && (data.valid === true || data.ok === true));
+  } catch {
+    return false;
+  }
+}
+
+/* -------------------- HELPERS -------------------- */
+function getCookieDomain(host) {
+  // Works for sharkx.lol + www.sharkx.lol
+  const h = (host || "").toLowerCase();
+  if (h.endsWith("sharkx.lol")) return ".sharkx.lol";
+  return undefined; // fallback: host-only cookie
+}
 
 function layoutPage({ title, inner, footer = true }) {
   return `<!doctype html>
@@ -63,7 +96,7 @@ function layoutPage({ title, inner, footer = true }) {
     .topbar{
       display:flex;
       align-items:center;
-      justify-content:flex-start; /* ✅ plus de texte à droite */
+      justify-content:flex-start;
       padding:16px 20px;
       border-bottom:1px solid var(--line);
       background: rgba(0,0,0,.35);
@@ -105,7 +138,6 @@ function layoutPage({ title, inner, footer = true }) {
       letter-spacing:-.02em;
       line-height:1.05;
     }
-    h1 span{ color:rgba(255,255,255,.78); }
     .desc{
       margin:0 0 16px;
       color:var(--muted);
@@ -154,8 +186,6 @@ function layoutPage({ title, inner, footer = true }) {
       display:flex;align-items:center;justify-content:center;
       background: rgba(0,0,0,.10);
     }
-
-    /* SIDE: Status only */
     .kicker{
       font-size:12px;
       letter-spacing:.18em;
@@ -193,7 +223,6 @@ function layoutPage({ title, inner, footer = true }) {
       border-radius:999px;
       transition: width .25s ease;
     }
-
     .keyBox{
       border:1px solid rgba(255,255,255,.16);
       background: rgba(255,255,255,.03);
@@ -216,7 +245,6 @@ function layoutPage({ title, inner, footer = true }) {
       color: rgba(255,255,255,.92);
     }
     .hint{margin-top:8px;color: rgba(255,255,255,.66);font-size:12px;line-height:1.5;}
-
     .bypass{
       border:1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.03);
@@ -225,7 +253,6 @@ function layoutPage({ title, inner, footer = true }) {
     }
     .bypass h2{ margin:0 0 8px; font-size:18px; }
     .bypass p{ margin:0 0 14px; color: rgba(255,255,255,.68); font-size:13px; line-height:1.55; }
-
     .foot{
       padding:14px 18px;
       border-top:1px solid var(--line);
@@ -259,17 +286,27 @@ function layoutPage({ title, inner, footer = true }) {
 </html>`;
 }
 
-function renderKeySystem({ step, progressPct, progressLabel, title, subtitle, showButton, buttonHref, buttonText, showKey, keyValue, showSteps }) {
+function renderKeySystem({
+  step,
+  progressPct,
+  progressLabel,
+  title,
+  subtitle,
+  showButton,
+  buttonHref,
+  buttonText,
+  showKey,
+  keyValue,
+  showSteps
+}) {
   const stepsBlock = showSteps ? `
     <p class="desc">${subtitle}</p>
     <div class="steps">
       <div class="step"><div class="num">1</div><div class="txt">Hit the button 1 Once you press Get my key it'll take you to workink.</div></div>
-      <div class="step"><div class="num">2</div><div class="txt">Finish the workink and you get sent back to Oris key system automatically</div></div>
+      <div class="step"><div class="num">2</div><div class="txt">Finish the workink and you get sent back to Vittel key system automatically</div></div>
       <div class="step"><div class="num">3</div><div class="txt">Then do all steps (there are 2) to get your key</div></div>
     </div>
-  ` : `
-    <p class="desc">${subtitle}</p>
-  `;
+  ` : `<p class="desc">${subtitle}</p>`;
 
   const inner = `
   <div class="content">
@@ -308,7 +345,7 @@ function renderKeySystem({ step, progressPct, progressLabel, title, subtitle, sh
     </div>
   </div>`;
 
-  return layoutPage({ title: "Oris | Key System", inner });
+  return layoutPage({ title: "VITTEL | Key System", inner });
 }
 
 function renderBypass() {
@@ -331,14 +368,25 @@ function renderBypass() {
       </div>
     </div>
   </div>`;
-  return layoutPage({ title: "Oris | Blocked", inner });
+  return layoutPage({ title: "VITTEL | Blocked", inner });
+}
+
+function getReturnedToken(url) {
+  // Accept any of these depending on Work.ink behavior
+  const t = (url.searchParams.get("t") || "").trim();
+  const wk = (url.searchParams.get("wk") || "").trim();
+  const hash = (url.searchParams.get("hash") || "").trim();
+
+  // Priority: wk / hash / t (wk is what you're seeing)
+  return wk || hash || t;
 }
 
 export default async function handler(req, res) {
   const sb = supabaseAdmin();
   const url = new URL(req.url, `https://${req.headers.host}`);
+
   const stepParam = url.searchParams.get("step") || "0";
-  const token = (url.searchParams.get("t") || "").trim();
+  const returnedToken = getReturnedToken(url);
 
   let step = parseInt(stepParam, 10);
   if (isNaN(step) || step < 0) step = 0;
@@ -351,6 +399,8 @@ export default async function handler(req, res) {
   let stage = -1;
   if (state && typeof state.stage === "number") stage = state.stage;
 
+  const cookieDomain = getCookieDomain(req.headers.host);
+
   // STEP 0
   if (step === 0) {
     setCookie(res, "keyflow", signState({ stage: 0 }), {
@@ -358,7 +408,7 @@ export default async function handler(req, res) {
       sameSite: "Lax",
       secure: true,
       maxAge: 3600000,
-      domain: ".sharkx.lol"
+      ...(cookieDomain ? { domain: cookieDomain } : {})
     });
 
     return html(res, 200, renderKeySystem({
@@ -378,33 +428,29 @@ export default async function handler(req, res) {
 
   // STEP 1
   if (step === 1) {
-    if (token) {
-      const now = new Date().toISOString();
-      const { data, error } = await sb
-        .from("keyflow_tokens")
-        .select("*")
-        .eq("token", token)
-        .eq("step", 1)
-        .is("consumed_at", null)
-        .limit(1);
+    // Returned from Work.ink with wk/hash/t
+    if (returnedToken) {
+      // Must come from Step0 stage
+      if (stage !== 0) return html(res, 200, renderBypass());
 
-      if (error || !data || data.length === 0) return html(res, 200, renderBypass());
-      const row = data[0];
-      if (new Date(row.expires_at) < new Date()) return html(res, 200, renderBypass());
+      // Validate Work.ink token (single use)
+      const ok = await verifyWorkinkToken(returnedToken, { singleUse: true });
+      if (!ok) return html(res, 200, renderBypass());
 
-      await sb.from("keyflow_tokens").update({ consumed_at: now }).eq("id", row.id);
-
+      // Advance to stage 1
       setCookie(res, "keyflow", signState({ stage: 1 }), {
         httpOnly: true,
         sameSite: "Lax",
         secure: true,
         maxAge: 3600000,
-        domain: ".sharkx.lol"
+        ...(cookieDomain ? { domain: cookieDomain } : {})
       });
 
+      // Clean URL (remove wk/hash/t)
       return redirect(res, 302, "/key?step=1");
     }
 
+    // Normal view
     if (stage !== 1) return html(res, 200, renderBypass());
 
     return html(res, 200, renderKeySystem({
@@ -424,28 +470,22 @@ export default async function handler(req, res) {
 
   // STEP 2
   if (step === 2) {
-    if (!token) return html(res, 200, renderBypass());
+    // Must have finished step1
+    if (stage !== 1) return html(res, 200, renderBypass());
 
-    const nowIso = new Date().toISOString();
-    const { data, error } = await sb
-      .from("keyflow_tokens")
-      .select("*")
-      .eq("token", token)
-      .eq("step", 2)
-      .is("consumed_at", null)
-      .limit(1);
+    // Must return from Work.ink with token
+    if (!returnedToken) return html(res, 200, renderBypass());
 
-    if (error || !data || data.length === 0) return html(res, 200, renderBypass());
-    const row = data[0];
-    if (new Date(row.expires_at) < new Date()) return html(res, 200, renderBypass());
+    // Validate Work.ink token (single use)
+    const ok = await verifyWorkinkToken(returnedToken, { singleUse: true });
+    if (!ok) return html(res, 200, renderBypass());
 
-    await sb.from("keyflow_tokens").update({ consumed_at: nowIso }).eq("id", row.id);
-
+    // Generate key
     const duration_type = "1d";
 
     let keyValue = "";
-    for (let tries = 0; tries < 8; tries++) {
-      keyValue = generateOrisKey();
+    for (let tries = 0; tries < 10; tries++) {
+      keyValue = generateVittelKey();
       const { data: exists, error: e2 } = await sb
         .from("keys")
         .select("id")
@@ -464,22 +504,22 @@ export default async function handler(req, res) {
 
     if (ierr) return html(res, 500, renderBypass());
 
+    // Reset stage
     setCookie(res, "keyflow", signState({ stage: -1 }), {
       httpOnly: true,
       sameSite: "Lax",
       secure: true,
       maxAge: 3600000,
-      domain: ".sharkx.lol"
+      ...(cookieDomain ? { domain: cookieDomain } : {})
     });
 
-    // ✅ Step 2 = Key received, and NO instructions/steps
     return html(res, 200, renderKeySystem({
       step: 2,
       progressPct: 100,
       progressLabel: "Step 2 / 2",
       title: "Key received",
       subtitle: "Your key is ready. Copy it and paste it into your Roblox UI.",
-      showSteps: false,        // ✅ important
+      showSteps: false,
       showButton: false,
       buttonText: "",
       buttonHref: "#",
@@ -490,5 +530,3 @@ export default async function handler(req, res) {
 
   return html(res, 400, "Invalid step");
 }
-
-
