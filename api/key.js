@@ -1,13 +1,7 @@
 import { supabaseAdmin } from "../lib/supabase.js";
-import { html, redirect, parseCookies, setCookie, randomToken } from "../lib/http.js";
-import crypto from "crypto";
-import { verifyWorkinkToken, getClientIp, getUserAgent, sha256Hex } from "../lib/workink.js";
+import { html, redirect, parseCookies, setCookie } from "../lib/http.js";
 import { signState, verifyState } from "../lib/state.js";
-
-const BRAND_NAME = "VITTEL";
-const BRAND_RIGHT = "THE LOST FRONT";
-const BRAND_LOGO_URL = "https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp";
-const DISCORD_URL = "https://discord.gg/vittel";
+import crypto from "crypto";
 
 function randomBlock4() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -18,6 +12,10 @@ function randomBlock4() {
 function generateVittelKey() {
   return `VITTEL-${randomBlock4()}-${randomBlock4()}-${randomBlock4()}`;
 }
+
+const BRAND_NAME = "VITTEL";
+const BRAND_LOGO_URL = "https://i.postimg.cc/6Q1THhjb/1fb4e891fde837ae834dbb7b18a89bc1.webp";
+const DISCORD_URL = "https://discord.gg/vittel";
 
 function layoutPage({ title, inner, footer = true }) {
   return `<!doctype html>
@@ -30,7 +28,7 @@ function layoutPage({ title, inner, footer = true }) {
     :root{
       --bg:#0b0b0d;
       --line:rgba(255,255,255,.10);
-      --line2:rgba(255,255,255,.16);
+      --line2:rgba(255,255,255,.18);
       --text:#f2f2f2;
       --muted:rgba(255,255,255,.62);
       --shadow: 0 30px 90px rgba(0,0,0,.55);
@@ -65,7 +63,7 @@ function layoutPage({ title, inner, footer = true }) {
     .topbar{
       display:flex;
       align-items:center;
-      justify-content:space-between;
+      justify-content:flex-start; /* ✅ plus de texte à droite */
       padding:16px 20px;
       border-bottom:1px solid var(--line);
       background: rgba(0,0,0,.35);
@@ -77,7 +75,7 @@ function layoutPage({ title, inner, footer = true }) {
       gap:10px;
       letter-spacing:.16em;
       text-transform:uppercase;
-      font-weight:700;
+      font-weight:800;
       font-size:13px;
     }
     .brand img{
@@ -85,12 +83,6 @@ function layoutPage({ title, inner, footer = true }) {
       object-fit:cover;
       border:1px solid rgba(255,255,255,.16);
       background:#000;
-    }
-    .rightmark{
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      font-size:11px;
-      color:var(--muted);
     }
     .content{
       display:grid;
@@ -107,15 +99,8 @@ function layoutPage({ title, inner, footer = true }) {
       border-radius: var(--radius);
       padding:18px;
     }
-    .kicker{
-      font-size:12px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      color:var(--muted);
-      margin-bottom:10px;
-    }
     h1{
-      margin:0 0 8px;
+      margin:0 0 10px;
       font-size:44px;
       letter-spacing:-.02em;
       line-height:1.05;
@@ -128,44 +113,29 @@ function layoutPage({ title, inner, footer = true }) {
       line-height:1.55;
       max-width:62ch;
     }
-    .steps{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-top:10px;
-    }
+    .steps{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
     .step{
-      display:flex;
-      gap:12px;
-      padding:12px;
+      display:flex;gap:12px;padding:12px;
       border:1px solid var(--line);
       background: rgba(255,255,255,.03);
       border-radius: var(--radius2);
     }
     .num{
-      width:28px;height:28px;
-      border-radius:10px;
+      width:28px;height:28px;border-radius:10px;
       border:1px solid var(--line2);
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      display:flex;align-items:center;justify-content:center;
       color:rgba(255,255,255,.86);
-      font-size:12px;
-      font-weight:700;
+      font-size:12px;font-weight:800;
       background: rgba(0,0,0,.30);
       flex:0 0 auto;
     }
-    .step .txt{
-      color:rgba(255,255,255,.78);
-      font-size:13px;
-      line-height:1.45;
-    }
+    .step .txt{color:rgba(255,255,255,.78);font-size:13px;line-height:1.45;}
     .cta{ margin-top:16px; }
     a.btn{
       text-decoration:none;
       border-radius:16px;
       padding:14px 16px;
-      font-weight:800;
+      font-weight:900;
       letter-spacing:.02em;
       font-size:14px;
       display:inline-flex;
@@ -185,10 +155,18 @@ function layoutPage({ title, inner, footer = true }) {
       background: rgba(0,0,0,.10);
     }
 
+    /* SIDE: Status only */
+    .kicker{
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:10px;
+    }
     .progressBox{
       border:1px solid var(--line);
       border-radius: var(--radius2);
-      padding:12px;
+      padding:14px;
       background: rgba(255,255,255,.03);
     }
     .progressTop{
@@ -197,16 +175,16 @@ function layoutPage({ title, inner, footer = true }) {
       align-items:center;
       font-size:12px;
       color:var(--muted);
-      margin-bottom:8px;
-      letter-spacing:.08em;
+      margin-bottom:10px;
+      letter-spacing:.10em;
       text-transform:uppercase;
     }
     .bar{
       height:10px;
       border-radius:999px;
-      background: rgba(255,255,255,.08);
+      background: rgba(255,255,255,.10);
       overflow:hidden;
-      border:1px solid rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.12);
     }
     .bar > div{
       height:100%;
@@ -215,20 +193,6 @@ function layoutPage({ title, inner, footer = true }) {
       border-radius:999px;
       transition: width .25s ease;
     }
-    .pill{
-      margin-top:12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px 12px;
-      border-radius: 999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      font-size:12px;
-      color:rgba(255,255,255,.78);
-    }
-    .pill strong{ color:rgba(255,255,255,.92); font-weight:900; letter-spacing:.08em; }
 
     .keyBox{
       border:1px solid rgba(255,255,255,.16);
@@ -251,12 +215,7 @@ function layoutPage({ title, inner, footer = true }) {
       word-break:break-all;
       color: rgba(255,255,255,.92);
     }
-    .hint{
-      margin-top:8px;
-      color: rgba(255,255,255,.66);
-      font-size:12px;
-      line-height:1.5;
-    }
+    .hint{margin-top:8px;color: rgba(255,255,255,.66);font-size:12px;line-height:1.5;}
 
     .bypass{
       border:1px solid rgba(255,255,255,.14);
@@ -275,11 +234,7 @@ function layoutPage({ title, inner, footer = true }) {
       line-height:1.5;
       background: rgba(0,0,0,.30);
     }
-    .foot a{
-      color:#ffffff;
-      text-decoration:underline;
-      text-underline-offset:3px;
-    }
+    .foot a{ color:#ffffff; text-decoration:underline; text-underline-offset:3px; }
   </style>
 </head>
 <body>
@@ -289,7 +244,6 @@ function layoutPage({ title, inner, footer = true }) {
         <img src="${BRAND_LOGO_URL}" alt="logo"/>
         <span>${BRAND_NAME}</span>
       </div>
-      <div class="rightmark">${BRAND_RIGHT}</div>
     </div>
 
     ${inner}
@@ -305,28 +259,24 @@ function layoutPage({ title, inner, footer = true }) {
 </html>`;
 }
 
-function renderKeySystem({ step, progressPct, progressLabel, showButton, buttonHref, buttonText, showKey, keyValue }) {
+function renderKeySystem({ step, progressPct, progressLabel, title, subtitle, showButton, buttonHref, buttonText, showKey, keyValue, showSteps }) {
+  const stepsBlock = showSteps ? `
+    <p class="desc">${subtitle}</p>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><div class="txt">Hit the button 1 Once you press Get my key it'll take you to workink.</div></div>
+      <div class="step"><div class="num">2</div><div class="txt">Finish the workink and you get sent back to Vittel key system automatically</div></div>
+      <div class="step"><div class="num">3</div><div class="txt">Then do all steps (there are 2) to get your key</div></div>
+    </div>
+  ` : `
+    <p class="desc">${subtitle}</p>
+  `;
+
   const inner = `
   <div class="content">
     <div class="main">
-      <div class="kicker">Get Key</div>
-      <h1>Get <span>Key</span></h1>
-      <p class="desc">// do the workink steps and your key pops up after</p>
+      <h1>${title}</h1>
 
-      <div class="steps">
-        <div class="step">
-          <div class="num">1</div>
-          <div class="txt">Hit the button 1 Once you press Get my key it'll take you to workink.</div>
-        </div>
-        <div class="step">
-          <div class="num">2</div>
-          <div class="txt">Finish the workink and you get sent back to Vittel key system automatically</div>
-        </div>
-        <div class="step">
-          <div class="num">3</div>
-          <div class="txt">Then do all steps (there are 2) to get your key</div>
-        </div>
-      </div>
+      ${stepsBlock}
 
       ${showButton ? `
         <div class="cta">
@@ -348,7 +298,6 @@ function renderKeySystem({ step, progressPct, progressLabel, showButton, buttonH
 
     <div class="side">
       <div class="kicker">Status</div>
-
       <div class="progressBox">
         <div class="progressTop">
           <span>${progressLabel}</span>
@@ -356,9 +305,9 @@ function renderKeySystem({ step, progressPct, progressLabel, showButton, buttonH
         </div>
         <div class="bar"><div style="width:${progressPct}%"></div></div>
       </div>
-
     </div>
   </div>`;
+
   return layoutPage({ title: "VITTEL | Key System", inner });
 }
 
@@ -370,10 +319,7 @@ function renderBypass() {
         <h2>Access denied</h2>
         <p>You failed your attempt to bypass the key system. Please restart from the beginning.</p>
         <div class="cta">
-          <a class="btn" href="/key?step=0">
-            <span>Restart key system</span>
-            <span class="arrow">→</span>
-          </a>
+          <a class="btn" href="/key?step=0"><span>Restart key system</span><span class="arrow">→</span></a>
         </div>
       </div>
     </div>
@@ -383,26 +329,16 @@ function renderBypass() {
         <div class="progressTop"><span>Protection</span><span>ON</span></div>
         <div class="bar"><div style="width:100%"></div></div>
       </div>
-      <div class="pill"><span>Status</span><strong>BLOCKED</strong></div>
     </div>
   </div>`;
   return layoutPage({ title: "VITTEL | Blocked", inner });
-}
-
-function getStrictFingerprint(req) {
-  const ip = getClientIp(req);
-  const ua = getUserAgent(req);
-  return {
-    ipHash: sha256Hex(ip),
-    uaHash: sha256Hex(ua),
-  };
 }
 
 export default async function handler(req, res) {
   const sb = supabaseAdmin();
   const url = new URL(req.url, `https://${req.headers.host}`);
   const stepParam = url.searchParams.get("step") || "0";
-  const wk = (url.searchParams.get("wk") || "").trim();
+  const token = (url.searchParams.get("t") || "").trim();
 
   let step = parseInt(stepParam, 10);
   if (isNaN(step) || step < 0) step = 0;
@@ -411,33 +347,13 @@ export default async function handler(req, res) {
   const cookies = parseCookies(req);
   const stateCookie = cookies.keyflow;
   const state = stateCookie ? verifyState(stateCookie) : null;
-  const nonceCookie = (cookies.kfn || "").toString();
 
   let stage = -1;
-  let nonceHash = "";
-  let boundIpHash = "";
-  let boundUaHash = "";
+  if (state && typeof state.stage === "number") stage = state.stage;
 
-  if (state && typeof state.stage === "number") {
-    stage = state.stage;
-    nonceHash = (state.nonceHash || "").toString();
-    boundIpHash = (state.ipHash || "").toString();
-    boundUaHash = (state.uaHash || "").toString();
-  }
-
+  // STEP 0
   if (step === 0) {
-    const nonce = randomToken(18);
-    const nHash = sha256Hex(nonce);
-
-    setCookie(res, "kfn", nonce, {
-      httpOnly: true,
-      sameSite: "Lax",
-      secure: true,
-      maxAge: 3600000,
-      domain: ".sharkx.lol"
-    });
-
-    setCookie(res, "keyflow", signState({ stage: 0, nonceHash: nHash }), {
+    setCookie(res, "keyflow", signState({ stage: 0 }), {
       httpOnly: true,
       sameSite: "Lax",
       secure: true,
@@ -449,6 +365,9 @@ export default async function handler(req, res) {
       step: 0,
       progressPct: 0,
       progressLabel: "Step 0 / 2",
+      title: "Get Key",
+      subtitle: "",
+      showSteps: true,
       showButton: true,
       buttonText: "Get my key",
       buttonHref: "/key/goto-step1",
@@ -457,24 +376,25 @@ export default async function handler(req, res) {
     }));
   }
 
+  // STEP 1
   if (step === 1) {
-    if (wk) {
-      if (stage !== 0) return html(res, 200, renderBypass());
-      if (!nonceCookie || !nonceHash) return html(res, 200, renderBypass());
-      if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypass());
+    if (token) {
+      const now = new Date().toISOString();
+      const { data, error } = await sb
+        .from("keyflow_tokens")
+        .select("*")
+        .eq("token", token)
+        .eq("step", 1)
+        .is("consumed_at", null)
+        .limit(1);
 
-      const expectedLinkId = process.env.WORKINK_STEP1_LINK_ID || "";
-      const v = await verifyWorkinkToken({ token: wk, expectedLinkId, req, deleteToken: true });
-      if (!v.ok) return html(res, 200, renderBypass());
+      if (error || !data || data.length === 0) return html(res, 200, renderBypass());
+      const row = data[0];
+      if (new Date(row.expires_at) < new Date()) return html(res, 200, renderBypass());
 
-      const fp = getStrictFingerprint(req);
+      await sb.from("keyflow_tokens").update({ consumed_at: now }).eq("id", row.id);
 
-      setCookie(res, "keyflow", signState({
-        stage: 1,
-        nonceHash,
-        ipHash: fp.ipHash,
-        uaHash: fp.uaHash
-      }), {
+      setCookie(res, "keyflow", signState({ stage: 1 }), {
         httpOnly: true,
         sameSite: "Lax",
         secure: true,
@@ -486,13 +406,14 @@ export default async function handler(req, res) {
     }
 
     if (stage !== 1) return html(res, 200, renderBypass());
-    if (!nonceCookie || !nonceHash) return html(res, 200, renderBypass());
-    if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypass());
 
     return html(res, 200, renderKeySystem({
       step: 1,
       progressPct: 50,
       progressLabel: "Step 1 / 2",
+      title: "Get Key",
+      subtitle: "",
+      showSteps: true,
       showButton: true,
       buttonText: "Continue (Step 2)",
       buttonHref: "/key/goto-step2",
@@ -501,25 +422,27 @@ export default async function handler(req, res) {
     }));
   }
 
+  // STEP 2
   if (step === 2) {
-    if (stage !== 1) return html(res, 200, renderBypass());
-    if (!wk) return html(res, 200, renderBypass());
+    if (!token) return html(res, 200, renderBypass());
 
-    if (!nonceCookie || !nonceHash) return html(res, 200, renderBypass());
-    if (sha256Hex(nonceCookie) !== nonceHash) return html(res, 200, renderBypass());
+    const nowIso = new Date().toISOString();
+    const { data, error } = await sb
+      .from("keyflow_tokens")
+      .select("*")
+      .eq("token", token)
+      .eq("step", 2)
+      .is("consumed_at", null)
+      .limit(1);
 
-    const fp = getStrictFingerprint(req);
-    if (!boundIpHash || !boundUaHash) return html(res, 200, renderBypass());
-    if (fp.ipHash !== boundIpHash) return html(res, 200, renderBypass());
-    if (fp.uaHash !== boundUaHash) return html(res, 200, renderBypass());
+    if (error || !data || data.length === 0) return html(res, 200, renderBypass());
+    const row = data[0];
+    if (new Date(row.expires_at) < new Date()) return html(res, 200, renderBypass());
 
-    const expectedLinkId = process.env.WORKINK_STEP2_LINK_ID || "";
-    const v = await verifyWorkinkToken({ token: wk, expectedLinkId, req, deleteToken: true });
-    if (!v.ok) return html(res, 200, renderBypass());
+    await sb.from("keyflow_tokens").update({ consumed_at: nowIso }).eq("id", row.id);
 
     const duration_type = "1d";
 
-    // ✅ NEW FORMAT
     let keyValue = "";
     for (let tries = 0; tries < 8; tries++) {
       keyValue = generateVittelKey();
@@ -528,6 +451,7 @@ export default async function handler(req, res) {
         .select("id")
         .eq("key_value", keyValue)
         .limit(1);
+
       if (e2) return html(res, 500, renderBypass());
       if (!exists || exists.length === 0) break;
       keyValue = "";
@@ -537,15 +461,9 @@ export default async function handler(req, res) {
     const { error: ierr } = await sb
       .from("keys")
       .insert([{ key_value: keyValue, duration_type }]);
+
     if (ierr) return html(res, 500, renderBypass());
 
-    setCookie(res, "kfn", "", {
-      httpOnly: true,
-      sameSite: "Lax",
-      secure: true,
-      maxAge: 1,
-      domain: ".sharkx.lol"
-    });
     setCookie(res, "keyflow", signState({ stage: -1 }), {
       httpOnly: true,
       sameSite: "Lax",
@@ -554,10 +472,14 @@ export default async function handler(req, res) {
       domain: ".sharkx.lol"
     });
 
+    // ✅ Step 2 = Key received, and NO instructions/steps
     return html(res, 200, renderKeySystem({
       step: 2,
       progressPct: 100,
       progressLabel: "Step 2 / 2",
+      title: "Key received",
+      subtitle: "Your key is ready. Copy it and paste it into your Roblox UI.",
+      showSteps: false,        // ✅ important
       showButton: false,
       buttonText: "",
       buttonHref: "#",
@@ -566,9 +488,5 @@ export default async function handler(req, res) {
     }));
   }
 
-  return html(res, 400, layoutPage({
-    title: "VITTEL | Error",
-    inner: `<div class="content"><div class="main"><div class="bypass"><h2>Invalid step</h2><p>Something went wrong.</p></div></div><div class="side"></div></div>`
-  }));
+  return html(res, 400, "Invalid step");
 }
-
