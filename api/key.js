@@ -16,15 +16,36 @@ function generateVittelKey() {
 /* -------------------- CLIENT FINGERPRINT -------------------- */
 function getClientIp(req) {
   const xff = req.headers["x-forwarded-for"];
-  if (typeof xff === "string" && xff.length) return xff.split(",")[0].trim();
-  if (Array.isArray(xff) && xff.length) return String(xff[0]).trim();
-  return (req.socket?.remoteAddress || "").toString();
+  let ip = "";
+  if (typeof xff === "string" && xff.length) ip = xff.split(",")[0].trim();
+  else if (Array.isArray(xff) && xff.length) ip = String(xff[0]).trim();
+  else ip = (req.socket?.remoteAddress || "").toString();
+
+  ip = ip.replace(/:\d+$/, "");
+  if (ip.startsWith("::ffff:")) ip = ip.slice(7);
+
+  return ip || "unknown";
+}
+function ipPrefix(ip) {
+  if (!ip || ip === "unknown") return "unknown";
+  if (ip.includes(".")) {
+    const p = ip.split(".");
+    if (p.length >= 3) return `${p[0]}.${p[1]}.${p[2]}`;
+    return ip;
+  }
+  const parts = ip.split(":").filter(Boolean);
+  return parts.slice(0, 4).join(":") || ip;
 }
 function getUserAgent(req) {
   return (req.headers["user-agent"] || "").toString();
 }
 function sha256Hex(str) {
   return crypto.createHash("sha256").update(String(str || ""), "utf8").digest("hex");
+}
+function cookieDomainFor(host) {
+  const h = (host || "").toLowerCase();
+  if (h.endsWith("sharkx.lol")) return ".sharkx.lol"; // www + apex
+  return undefined;
 }
 
 /* -------------------- WORK.INK VERIFY -------------------- */
@@ -369,6 +390,20 @@ function getReturnedToken(url) {
   return wk || hash || t;
 }
 
+// Validate sid session but DO NOT consume yet
+async function loadSession(sb, sid) {
+  if (!sid) return null;
+  const { data, error } = await sb.from("keyflow_sessions").select("*").eq("id", sid).limit(1);
+  if (error || !data || data.length === 0) return null;
+  return data[0];
+}
+
+async function consumeSession(sb, sid) {
+  const nowIso = new Date().toISOString();
+  const { error } = await sb.from("keyflow_sessions").update({ consumed_at: nowIso }).eq("id", sid).is("consumed_at", null);
+  return !error;
+}
+
 export default async function handler(req, res) {
   const sb = supabaseAdmin();
   const url = new URL(req.url, `https://${req.headers.host}`);
@@ -381,19 +416,13 @@ export default async function handler(req, res) {
   if (isNaN(step) || step < 0) step = 0;
   if (step > 2) step = 2;
 
-  // STEP 0 (pas besoin de cookie stage pour antibypass maintenant)
-  if (step === 0) {
-    // petit cookie UX (pas antibypass)
-    const cookies = parseCookies(req);
-    if (!cookies.vittel_seen) {
-      setCookie(res, "vittel_seen", "1", {
-        httpOnly: true,
-        sameSite: "Lax",
-        secure: true,
-        maxAge: 86400000
-      });
-    }
+  const cookies = parseCookies(req);
+  const prog = cookies.kf_prog || ""; // "1" means step1 validated
 
+  const domain = cookieDomainFor(req.headers.host);
+
+  // STEP 0
+  if (step === 0) {
     return html(res, 200, renderKeySystem({
       step: 0,
       progressPct: 0,
@@ -409,47 +438,42 @@ export default async function handler(req, res) {
     }));
   }
 
-  // Helper: validate sid + ip/ua + step + expiry + not consumed
-  async function consumeSession(expectedStep) {
-    if (!sid) return false;
-
-    const { data, error } = await sb
-      .from("keyflow_sessions")
-      .select("*")
-      .eq("id", sid)
-      .limit(1);
-
-    if (error || !data || data.length === 0) return false;
-
-    const row = data[0];
-    if (row.step !== expectedStep) return false;
-    if (row.consumed_at) return false;
-    if (new Date(row.expires_at) < new Date()) return false;
-
-    const ipHash = sha256Hex(getClientIp(req));
-    const uaHash = sha256Hex(getUserAgent(req));
-    if (row.ip_hash !== ipHash) return false;
-    if (row.ua_hash !== uaHash) return false;
-
-    await sb.from("keyflow_sessions").update({ consumed_at: new Date().toISOString() }).eq("id", sid);
-    return true;
-  }
-
   // STEP 1
   if (step === 1) {
-    // retour Work.ink => il faut wk + sid
+    // Return from Work.ink MUST have wk + sid
     if (wk) {
+      const session = await loadSession(sb, sid);
+      if (!session) return html(res, 200, renderBypass());
+      if (session.step !== 1) return html(res, 200, renderBypass());
+      if (session.consumed_at) return html(res, 200, renderBypass());
+      if (new Date(session.expires_at) < new Date()) return html(res, 200, renderBypass());
+
+      const ip = ipPrefix(getClientIp(req));
+      const ua = getUserAgent(req);
+      if (session.ip_hash !== sha256Hex(ip)) return html(res, 200, renderBypass());
+      if (session.ua_hash !== sha256Hex(ua)) return html(res, 200, renderBypass());
+
       const okWk = await verifyWorkinkToken(wk, { singleUse: true });
       if (!okWk) return html(res, 200, renderBypass());
 
-      const okSid = await consumeSession(1);
-      if (!okSid) return html(res, 200, renderBypass());
+      const okConsume = await consumeSession(sb, sid);
+      if (!okConsume) return html(res, 200, renderBypass());
 
-      // clean URL
+      // Mark progress step1 complete (works www + apex)
+      setCookie(res, "kf_prog", "1", {
+        httpOnly: true,
+        sameSite: "Lax",
+        secure: true,
+        maxAge: 6 * 60 * 60 * 1000,
+        ...(domain ? { domain } : {})
+      });
+
       return redirect(res, 302, "/key?step=1");
     }
 
-    // page “step 1 completed”
+    // Direct access to step1 must be blocked unless step1 is validated
+    if (prog !== "1") return html(res, 200, renderBypass());
+
     return html(res, 200, renderKeySystem({
       step: 1,
       progressPct: 50,
@@ -467,14 +491,30 @@ export default async function handler(req, res) {
 
   // STEP 2
   if (step === 2) {
+    // Must have completed step1
+    if (prog !== "1") return html(res, 200, renderBypass());
+
+    // Must return from Work.ink with wk + sid
     if (!wk) return html(res, 200, renderBypass());
+
+    const session = await loadSession(sb, sid);
+    if (!session) return html(res, 200, renderBypass());
+    if (session.step !== 2) return html(res, 200, renderBypass());
+    if (session.consumed_at) return html(res, 200, renderBypass());
+    if (new Date(session.expires_at) < new Date()) return html(res, 200, renderBypass());
+
+    const ip = ipPrefix(getClientIp(req));
+    const ua = getUserAgent(req);
+    if (session.ip_hash !== sha256Hex(ip)) return html(res, 200, renderBypass());
+    if (session.ua_hash !== sha256Hex(ua)) return html(res, 200, renderBypass());
 
     const okWk = await verifyWorkinkToken(wk, { singleUse: true });
     if (!okWk) return html(res, 200, renderBypass());
 
-    const okSid = await consumeSession(2);
-    if (!okSid) return html(res, 200, renderBypass());
+    const okConsume = await consumeSession(sb, sid);
+    if (!okConsume) return html(res, 200, renderBypass());
 
+    // generate key
     const duration_type = "1d";
 
     let keyValue = "";
@@ -497,6 +537,15 @@ export default async function handler(req, res) {
       .insert([{ key_value: keyValue, duration_type }]);
 
     if (ierr) return html(res, 500, renderBypass());
+
+    // reset progress so they can't re-enter step2
+    setCookie(res, "kf_prog", "0", {
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: true,
+      maxAge: 1,
+      ...(domain ? { domain } : {})
+    });
 
     return html(res, 200, renderKeySystem({
       step: 2,
