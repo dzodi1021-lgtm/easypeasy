@@ -2,8 +2,8 @@ import crypto from "crypto";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { redirect } from "../lib/http.js";
 
-const WORKINK_STEP1 = process.env.WORKINK_STEP1_URL; 
-const TOKEN_TTL_MS = 15 * 60 * 1000; 
+const WORKINK_STEP1 = process.env.WORKINK_STEP1_URL; // ex: "https://work.ink/XYZ/step1"
+const TOKEN_TTL_MS = 15 * 60 * 1000;
 
 function getClientIp(req) {
   const xff = req.headers["x-forwarded-for"];
@@ -38,8 +38,7 @@ export default async function handler(req, res) {
   const expiresAt = new Date(Date.now() + TOKEN_TTL_MS).toISOString();
 
   await sb.from("keyflow_sessions").insert({
-    id: sid,
-    step: 1,
+    id: sid, step: 1,
     ip_hash: sha256Hex(ip),
     ua_hash: sha256Hex(ua),
     expires_at: expiresAt
