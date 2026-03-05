@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { redirect } from "../lib/http.js";
 
-const WORKINK_STEP2 = process.env.WORKINK_STEP2_URL; 
+const WORKINK_STEP2 = process.env.WORKINK_STEP2_URL; // ex: "https://work.ink/XYZ/step2"
 const TOKEN_TTL_MS = 15 * 60 * 1000;
 
 function getClientIp(req) {
@@ -38,13 +38,11 @@ export default async function handler(req, res) {
   const expiresAt = new Date(Date.now() + TOKEN_TTL_MS).toISOString();
 
   await sb.from("keyflow_sessions").insert({
-    id: sid,
-    step: 2,
+    id: sid, step: 2,
     ip_hash: sha256Hex(ip),
     ua_hash: sha256Hex(ua),
     expires_at: expiresAt
   });
 
-  // Redirection vers Work.ink (étape 2), sans param redirect
   return redirect(res, 302, WORKINK_STEP2);
 }
