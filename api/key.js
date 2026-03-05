@@ -203,3 +203,4 @@ export default async function handler(req, res) {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.end(layoutPage("Error", `<div class="content"><h2>Invalid step</h2></div>`, false));
 }
+
