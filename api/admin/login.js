@@ -12,8 +12,8 @@ export default async function handler(req, res) {
   const { username, password } = body || {};
   if (!username || !password) return json(res, 400, { ok: false, message: "Missing fields" });
 
-  const adminUser = process.env.ADMIN_USERNAME || "admin";
-  const adminPass = process.env.ADMIN_PASSWORD || "change_me";
+  const adminUser = process.env.ADMIN_USERNAME || "ADMIN_USERNAME";
+  const adminPass = process.env.ADMIN_PASSWORD || "ADMIN_PASSWORD";
   if (username !== adminUser || password !== adminPass) {
     return json(res, 401, { ok: false, message: "Invalid credentials" });
   }
@@ -41,3 +41,4 @@ export default async function handler(req, res) {
 
   return json(res, 200, { ok: true });
 }
+
